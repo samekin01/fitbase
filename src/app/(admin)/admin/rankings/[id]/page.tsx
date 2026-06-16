@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { RankingForm } from "@/components/admin/RankingForm";
+import { ConfirmForm } from "@/components/admin/ConfirmForm";
 import { updateRanking, deleteRanking } from "@/lib/actions/rankings";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 
@@ -62,16 +63,13 @@ export default async function RankingEditPage({
         <p style={{ fontSize: "0.875rem", color: "var(--color-gray-700)", marginBottom: "0.75rem" }}>
           このランキングを削除します。この操作は取り消せません。
         </p>
-        <form
+        <ConfirmForm
+          message={`「${ranking.title}」を削除しますか？`}
           action={deleteAction}
-          onSubmit={(e) => {
-            if (!confirm(`「${ranking.title}」を削除しますか？`)) e.preventDefault();
-          }}
-        >
-          <button type="submit" className="btn btn-sm" style={{ backgroundColor: "#DC2626", color: "white", border: "none" }}>
-            削除する
-          </button>
-        </form>
+          label="削除する"
+          buttonClassName="btn btn-sm"
+          buttonStyle={{ backgroundColor: "#DC2626", color: "white", border: "none" }}
+        />
       </div>
     </div>
   );

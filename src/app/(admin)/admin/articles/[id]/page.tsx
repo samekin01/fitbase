@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ArticleForm } from "@/components/admin/ArticleForm";
+import { ConfirmForm } from "@/components/admin/ConfirmForm";
 import { updateArticle, deleteArticle } from "@/lib/actions/articles";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 
@@ -42,16 +43,13 @@ export default async function ArticleEditPage({
         <p style={{ fontSize: "0.875rem", color: "var(--color-gray-700)", marginBottom: "0.75rem" }}>
           この記事を削除します。この操作は取り消せません。
         </p>
-        <form
+        <ConfirmForm
+          message={`「${article.title}」を削除しますか？`}
           action={deleteAction}
-          onSubmit={(e) => {
-            if (!confirm(`「${article.title}」を削除しますか？`)) e.preventDefault();
-          }}
-        >
-          <button type="submit" className="btn btn-sm" style={{ backgroundColor: "#DC2626", color: "white", border: "none" }}>
-            削除する
-          </button>
-        </form>
+          label="削除する"
+          buttonClassName="btn btn-sm"
+          buttonStyle={{ backgroundColor: "#DC2626", color: "white", border: "none" }}
+        />
       </div>
     </div>
   );

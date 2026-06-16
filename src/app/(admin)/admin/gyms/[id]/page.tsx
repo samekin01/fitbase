@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { GymForm } from "@/components/admin/GymForm";
+import { DeleteGymButton } from "@/components/admin/DeleteGymButton";
 import { PlacesSyncButton } from "@/components/admin/PlacesSyncButton";
 import { updateGym, deleteGym } from "@/lib/actions/gyms";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -91,16 +92,7 @@ export default async function GymEditPage({
         <p style={{ fontSize: "0.875rem", color: "var(--color-gray-700)", marginBottom: "0.75rem" }}>
           このジムを削除します。この操作は取り消せません。
         </p>
-        <form
-          action={deleteAction}
-          onSubmit={(e) => {
-            if (!confirm(`「${gym.name}」を削除しますか？`)) e.preventDefault();
-          }}
-        >
-          <button type="submit" className="btn btn-sm" style={{ backgroundColor: "#DC2626", color: "white", border: "none" }}>
-            削除する
-          </button>
-        </form>
+        <DeleteGymButton gymName={gym.name} action={deleteAction} />
       </div>
     </div>
   );

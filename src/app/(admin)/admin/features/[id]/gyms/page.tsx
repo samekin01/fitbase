@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { addFeatureGym, removeFeatureGym, updateFeatureGym } from "@/lib/actions/features";
+import { ConfirmForm } from "@/components/admin/ConfirmForm";
 
 export const dynamic = "force-dynamic";
 
@@ -95,16 +96,13 @@ export default async function FeatureGymsPage({
                     </form>
                   </td>
                   <td>
-                    <form
+                    <ConfirmForm
+                      message="このジムを特集から外しますか？"
                       action={removeFeatureGym.bind(null, id, row.id)}
-                      onSubmit={(e) => {
-                        if (!confirm("このジムを特集から外しますか？")) e.preventDefault();
-                      }}
-                    >
-                      <button type="submit" className="btn btn-sm" style={{ backgroundColor: "transparent", color: "var(--color-error)", border: "1px solid var(--color-error)" }}>
-                        外す
-                      </button>
-                    </form>
+                      label="外す"
+                      buttonClassName="btn btn-sm"
+                      buttonStyle={{ backgroundColor: "transparent", color: "var(--color-error)", border: "1px solid var(--color-error)" }}
+                    />
                   </td>
                 </tr>
               ))
