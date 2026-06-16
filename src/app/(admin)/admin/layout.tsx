@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { logout } from "@/lib/actions/auth";
+import { LogoutButton } from "@/components/admin/LogoutButton";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -48,11 +48,7 @@ export default async function AdminLayout({
     return (
       <div style={{ padding: "2rem", textAlign: "center" }}>
         <p>管理者権限がありません。</p>
-        <form action={logout}>
-          <button type="submit" className="btn btn-secondary" style={{ marginTop: "1rem" }}>
-            ログアウト
-          </button>
-        </form>
+        <LogoutButton className="btn btn-secondary" style={{ marginTop: "1rem" }} />
       </div>
     );
   }
@@ -112,21 +108,16 @@ export default async function AdminLayout({
           }}
         >
           <p style={{ marginBottom: "0.375rem" }}>{user.email}</p>
-          <form action={logout}>
-            <button
-              type="submit"
-              style={{
-                background: "none",
-                border: "none",
-                padding: 0,
-                fontSize: "0.75rem",
-                color: "var(--color-link)",
-                cursor: "pointer",
-              }}
-            >
-              ログアウト
-            </button>
-          </form>
+          <LogoutButton
+            style={{
+              background: "none",
+              border: "none",
+              padding: 0,
+              fontSize: "0.75rem",
+              color: "var(--color-link)",
+              cursor: "pointer",
+            }}
+          />
         </div>
       </aside>
 
