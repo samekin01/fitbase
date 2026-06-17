@@ -919,7 +919,6 @@ a:hover {
   .gym-detail-sidebar {
     width: 100% !important;
     position: static !important;
-    order: -1 !important;
   }
   .gym-detail-main {
     width: 100% !important;
