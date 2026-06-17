@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { uploadGymImage, deleteGymImage, setCoverImage } from "@/lib/actions/images";
+import { ConfirmForm } from "@/components/admin/ConfirmForm";
 
 export const dynamic = "force-dynamic";
 
@@ -106,7 +107,7 @@ export default async function GymImagesPage({
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={img.url}
+                src={img.image_url}
                 alt={img.alt_text ?? ""}
                 style={{ width: "100%", height: "140px", objectFit: "cover", display: "block" }}
               />
@@ -147,24 +148,13 @@ export default async function GymImagesPage({
                       </button>
                     </form>
                   )}
-                  <form
-                    action={deleteGymImage.bind(null, id, img.id, img.storage_path)}
-                  >
-                    <button
-                      type="submit"
-                      className="btn btn-sm"
-                      style={{
-                        backgroundColor: "transparent",
-                        color: "var(--color-error)",
-                        border: "1px solid var(--color-error)",
-                      }}
-                      onClick={(e) => {
-                        if (!confirm("この画像を削除しますか？")) e.preventDefault();
-                      }}
-                    >
-                      削除
-                    </button>
-                  </form>
+                  <ConfirmForm
+                    message="この画像を削除しますか？"
+                    action={deleteGymImage.bind(null, id, img.id, img.storage_path ?? "")}
+                    label="削除"
+                    buttonClassName="btn btn-sm"
+                    buttonStyle={{ backgroundColor: "transparent", color: "var(--color-error)", border: "1px solid var(--color-error)" }}
+                  />
                 </div>
               </div>
             </div>

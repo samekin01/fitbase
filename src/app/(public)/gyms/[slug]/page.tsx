@@ -75,14 +75,14 @@ export default async function GymDetailPage({
 
   const [{ data: plans }, { data: images }, { data: gymTags }] = await Promise.all([
     supabase.from("gym_plans").select("*").eq("gym_id", gym.id).order("sort_order"),
-    supabase.from("gym_images").select("id, url, alt_text, is_cover, sort_order").eq("gym_id", gym.id).order("sort_order"),
+    supabase.from("gym_images").select("id, image_url, sort_order").eq("gym_id", gym.id).order("sort_order"),
     supabase
       .from("gym_tags")
       .select("tags(name, slug)")
       .eq("gym_id", gym.id),
   ]);
 
-  const coverImage = images?.find((i: any) => i.is_cover) ?? images?.[0] ?? null;
+  const coverImage = images?.[0] ?? null;
   const otherImages = images?.filter((i: any) => i.id !== coverImage?.id) ?? [];
   const pref = gym.prefectures as any;
   const city = gym.cities as any;
@@ -133,7 +133,7 @@ export default async function GymDetailPage({
     ...(gym.address ? { address: { "@type": "PostalAddress", addressCountry: "JP", streetAddress: gym.address } } : {}),
     ...(gym.phone ? { telephone: gym.phone } : {}),
     ...(gym.description ? { description: gym.description } : {}),
-    ...(coverImage ? { image: coverImage.url } : {}),
+    ...(coverImage ? { image: coverImage.image_url } : {}),
     ...(gym.google_rating != null ? {
       aggregateRating: {
         "@type": "AggregateRating",
@@ -193,8 +193,8 @@ export default async function GymDetailPage({
           {coverImage && (
             <div style={{ marginBottom: "1rem" }}>
               <Image
-                src={coverImage.url}
-                alt={coverImage.alt_text ?? gym.name}
+                src={coverImage.image_url}
+                alt={gym.name}
                 width={760}
                 height={480}
                 style={{ width: "100%", height: "auto", maxHeight: "380px", objectFit: "cover", borderRadius: "var(--radius-md)" }}
@@ -209,8 +209,8 @@ export default async function GymDetailPage({
               {otherImages.slice(0, 5).map((img: any) => (
                 <Image
                   key={img.id}
-                  src={img.url}
-                  alt={img.alt_text ?? gym.name}
+                  src={img.image_url}
+                  alt={gym.name}
                   width={140}
                   height={100}
                   style={{ width: "140px", height: "100px", objectFit: "cover", borderRadius: "var(--radius-sm)" }}

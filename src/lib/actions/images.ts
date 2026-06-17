@@ -33,7 +33,7 @@ export async function uploadGymImage(gymId: string, formData: FormData) {
   const { error: dbError } = await supabase.from("gym_images").insert({
     gym_id: gymId,
     storage_path: storagePath,
-    url: publicUrl.publicUrl,
+    image_url: publicUrl.publicUrl,
     alt_text: altText || null,
     is_cover: isCover,
     sort_order: count ?? 0,

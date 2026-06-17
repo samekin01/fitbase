@@ -6,13 +6,13 @@ export const GYM_LIST_SELECT = `
   monthly_fee_min, total_price_min,
   has_trial, is_female_friendly, has_private_room, has_nutrition_support, supports_contest, is_near_station,
   google_rating, google_review_count,
-  gym_images(url, is_cover)
+  gym_images(image_url)
 ` as const;
 
 export function coverImageUrl(gym: any): string | null {
-  const imgs = gym.gym_images as Array<{ url: string; is_cover: boolean }> | null;
+  const imgs = gym.gym_images as Array<{ image_url: string }> | null;
   if (!imgs?.length) return null;
-  return imgs.find((i) => i.is_cover)?.url ?? imgs[0]?.url ?? null;
+  return imgs[0]?.image_url ?? null;
 }
 
 export function toGymSummary(gym: any) {
