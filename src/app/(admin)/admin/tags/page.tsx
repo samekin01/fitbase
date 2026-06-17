@@ -1,4 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createTag, deleteTag } from "@/lib/actions/tags";
+import { TagForm } from "./TagForm";
+import { ConfirmForm } from "@/components/admin/ConfirmForm";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "タグ管理 | FitBase CMS" };
@@ -16,12 +19,17 @@ export default async function TagsPage() {
         タグ管理
       </h1>
 
+      {/* 新規追加フォーム */}
+      <TagForm action={createTag} />
+
+      {/* タグ一覧 */}
       <div
         style={{
           backgroundColor: "var(--color-white)",
           border: "1px solid var(--color-gray-200)",
           borderRadius: "var(--radius-md)",
           overflow: "hidden",
+          marginTop: "1.5rem",
         }}
       >
         <table className="data-table">
@@ -30,6 +38,7 @@ export default async function TagsPage() {
               <th>タグ名</th>
               <th>スラッグ</th>
               <th>表示順</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -38,6 +47,15 @@ export default async function TagsPage() {
                 <td style={{ fontWeight: 600 }}>{tag.name}</td>
                 <td style={{ color: "var(--color-gray-500)", fontFamily: "monospace" }}>{tag.slug}</td>
                 <td>{tag.sort_order}</td>
+                <td>
+                  <ConfirmForm
+                    message={`「${tag.name}」を削除しますか？`}
+                    action={deleteTag.bind(null, tag.id)}
+                    label="削除"
+                    buttonClassName="btn btn-sm"
+                    buttonStyle={{ backgroundColor: "transparent", color: "var(--color-error)", border: "1px solid var(--color-error)" }}
+                  />
+                </td>
               </tr>
             ))}
           </tbody>
@@ -46,7 +64,7 @@ export default async function TagsPage() {
 
       {(!tags || tags.length === 0) && (
         <p style={{ color: "var(--color-gray-500)", fontSize: "0.875rem", marginTop: "1rem" }}>
-          タグがありません。
+          タグがありません。上のフォームから追加してください。
         </p>
       )}
     </div>
