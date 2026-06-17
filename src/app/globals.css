@@ -911,6 +911,24 @@ a:hover {
   /* ヒーロータイトル・説明文: モバイルは左寄せ */
   .hero-title { text-align: left !important; }
   .hero-desc { text-align: left !important; }
+
+  /* ジム詳細: 2カラム→縦積み */
+  .gym-detail-layout {
+    flex-direction: column !important;
+  }
+  .gym-detail-sidebar {
+    width: 100% !important;
+    position: static !important;
+    order: -1 !important;
+  }
+  .gym-detail-main {
+    width: 100% !important;
+  }
+  /* 料金プランテーブル: 横スクロール */
+  .gym-plan-table-wrap {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
 }
 
 /* タブレット (640px〜1023px) */

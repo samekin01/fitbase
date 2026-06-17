@@ -177,9 +177,10 @@ export default async function GymDetailPage({
         {[gym.area_name, gym.address].filter(Boolean).join(" / ")}
       </p>
 
-      <div style={{ display: "flex", gap: "1.25rem", alignItems: "flex-start" }}>
+      <div className="gym-detail-layout" style={{ display: "flex", gap: "1.25rem", alignItems: "flex-start" }}>
         {/* ─── メインカラム ─── */}
         <div
+          className="gym-detail-main"
           style={{
             flex: 1,
             minWidth: 0,
@@ -307,6 +308,7 @@ export default async function GymDetailPage({
             <section style={{ marginBottom: "1.75rem" }}>
               <h2 className="section-title">料金プラン</h2>
               <div
+                className="gym-plan-table-wrap"
                 style={{
                   border: "1px solid var(--color-gray-200)",
                   borderRadius: "var(--radius-md)",
@@ -389,6 +391,7 @@ export default async function GymDetailPage({
 
         {/* ─── サイドバー ─── */}
         <aside
+          className="gym-detail-sidebar"
           style={{
             width: "220px",
             flexShrink: 0,
