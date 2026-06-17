@@ -271,6 +271,7 @@ export default async function TopPage() {
         }} />
         <div className="container" style={{ padding: "0 1.5rem", position: "relative", zIndex: 1 }}>
           <h1
+            className="hero-title"
             style={{
               fontSize: "clamp(1.75rem, 4vw, 2.875rem)",
               fontWeight: 800,

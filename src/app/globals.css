@@ -908,7 +908,8 @@ a:hover {
   /* ページタイトル */
   .page-title { font-size: 1.25rem !important; }
 
-  /* ヒーロー説明文: モバイルは左寄せ */
+  /* ヒーロータイトル・説明文: モバイルは左寄せ */
+  .hero-title { text-align: left !important; }
   .hero-desc { text-align: left !important; }
 }
 
