@@ -40,7 +40,7 @@ export async function searchPlaces(
     body.locationBias = {
       circle: {
         center: { latitude: center.lat, longitude: center.lng },
-        radius: 60000,
+        radius: 50000,
       },
     };
   }
