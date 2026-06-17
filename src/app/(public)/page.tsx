@@ -284,10 +284,8 @@ export default async function TopPage() {
             料金・特徴で比較して探す
           </h1>
 
-          <p style={{ fontSize: "0.9375rem", color: "#FFFFFF", lineHeight: 1.75, maxWidth: "560px", margin: "0 auto" }}>
-            愛知・岐阜・三重・静岡のパーソナルジムを一覧で比較できる専門メディア。
-            <br />
-            料金・エリア・こだわり条件で絞り込んで、理想のジムを見つけよう。
+          <p className="hero-desc" style={{ fontSize: "0.9375rem", color: "#FFFFFF", lineHeight: 1.75, maxWidth: "560px", margin: "0 auto" }}>
+            愛知・岐阜・三重・静岡のパーソナルジムを一覧で比較できる専門メディア。料金・エリア・こだわり条件で絞り込んで、理想のジムを見つけよう。
           </p>
         </div>
       </section>
