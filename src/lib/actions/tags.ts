@@ -12,7 +12,7 @@ export async function createTag(_prev: { error?: string } | null, formData: Form
   if (!name || !slug) return { error: "タグ名とスラッグは必須です。" };
 
   const supabase = createAdminClient();
-  const { error } = await supabase.from("tags").insert({ name, slug, sort_order });
+  const { error } = await supabase.from("tags").insert({ name, slug, sort_order, category: null });
   if (error) return { error: error.message };
 
   revalidatePath("/admin/tags");
