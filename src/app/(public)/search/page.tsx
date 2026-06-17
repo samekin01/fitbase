@@ -182,9 +182,10 @@ export default async function SearchPage({
     <div className="container" style={{ paddingTop: "1rem", paddingBottom: "2.5rem" }}>
       <Breadcrumb items={[{ label: "トップ", href: "/" }, { label: "ジムを探す" }]} />
 
-      <div style={{ display: "flex", gap: "1.25rem", alignItems: "flex-start" }}>
+      <div className="search-layout" style={{ display: "flex", gap: "1.25rem", alignItems: "flex-start" }}>
         {/* ─── サイドバー ─── */}
         <aside
+          className="search-sidebar"
           style={{
             width: "188px",
             flexShrink: 0,
@@ -295,7 +296,7 @@ export default async function SearchPage({
         </aside>
 
         {/* ─── メイン ─── */}
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="search-main" style={{ flex: 1, minWidth: 0 }}>
           {/* ヘッダー行 */}
           <div
             style={{

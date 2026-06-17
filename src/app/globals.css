@@ -912,6 +912,19 @@ a:hover {
   .hero-title { text-align: left !important; }
   .hero-desc { text-align: left !important; }
 
+  /* 検索ページ: 2カラム→縦積み（フィルターは結果の下） */
+  .search-layout {
+    flex-direction: column !important;
+  }
+  .search-sidebar {
+    width: 100% !important;
+    position: static !important;
+    order: 1 !important;
+  }
+  .search-main {
+    width: 100% !important;
+  }
+
   /* ジム詳細: 2カラム→縦積み */
   .gym-detail-layout {
     flex-direction: column !important;
