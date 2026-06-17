@@ -19,6 +19,7 @@ const NAV_ITEMS = [
   { label: "ランキング", href: "/admin/rankings" },
   { label: "記事", href: "/admin/articles" },
   { label: "タグ", href: "/admin/tags" },
+  { label: "AI一括入力", href: "/admin/gyms/ai-fill" },
   { label: "Places 収集", href: "/admin/places/import" },
   { label: "インポート履歴", href: "/admin/places/history" },
   { label: "管理申請", href: "/admin/requests/claims" },

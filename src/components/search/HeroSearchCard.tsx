@@ -92,9 +92,9 @@ export function HeroSearchCard({ prefectures }: { prefectures: Prefecture[] }) {
     >
       <form onSubmit={handleSubmit}>
         {/* ── メイン行: キーワード + エリア + ボタン ── */}
-        <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.875rem", alignItems: "stretch" }}>
+        <div className="hero-search-row" style={{ display: "flex", gap: "0.5rem", marginBottom: "0.875rem", alignItems: "stretch" }}>
           {/* キーワード */}
-          <div style={{ flex: "2 1 0", position: "relative" }}>
+          <div className="hero-search-keyword" style={{ flex: "2 1 0", position: "relative" }}>
             <svg
               style={{
                 position: "absolute",
@@ -120,7 +120,7 @@ export function HeroSearchCard({ prefectures }: { prefectures: Prefecture[] }) {
           </div>
 
           {/* エリア */}
-          <div style={{ flex: "1 1 0", position: "relative" }}>
+          <div className="hero-search-area" style={{ flex: "1 1 0", position: "relative" }}>
             <select
               value={prefSlug}
               onChange={(e) => setPrefSlug(e.target.value)}
@@ -150,6 +150,7 @@ export function HeroSearchCard({ prefectures }: { prefectures: Prefecture[] }) {
           {/* 検索ボタン */}
           <button
             type="submit"
+            className="hero-search-btn"
             style={{
               flexShrink: 0,
               padding: "0 2.25rem",

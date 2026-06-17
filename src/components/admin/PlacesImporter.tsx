@@ -10,6 +10,8 @@ export function PlacesImporter({ prefectures }: { prefectures: Prefecture[] }) {
   const [prefSlug, setPrefSlug] = useState(prefectures[0]?.slug ?? "");
   const [query, setQuery] = useState("パーソナルジム");
   const [rows, setRows] = useState<ResultRow[]>([]);
+  const [nextPageToken, setNextPageToken] = useState<string | null>(null);
+  const [currentSearch, setCurrentSearch] = useState<{ query: string; prefSlug: string } | null>(null);
   const [searchError, setSearchError] = useState("");
   const [importResult, setImportResult] = useState<{ inserted: string[]; skipped: string[]; errors: string[] } | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -20,6 +22,8 @@ export function PlacesImporter({ prefectures }: { prefectures: Prefecture[] }) {
     setPrefectureId(id);
     setPrefSlug(pref?.slug ?? "");
     setRows([]);
+    setNextPageToken(null);
+    setCurrentSearch(null);
     setImportResult(null);
   }
 
@@ -37,24 +41,57 @@ export function PlacesImporter({ prefectures }: { prefectures: Prefecture[] }) {
     );
   }
 
+  async function doSearch(pageToken?: string) {
+    const searchQuery = pageToken ? (currentSearch?.query ?? query) : query;
+    const searchPrefSlug = pageToken ? (currentSearch?.prefSlug ?? prefSlug) : prefSlug;
+
+    const res = await fetch("/api/places/search", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: searchQuery, prefSlug: searchPrefSlug, pageToken }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setSearchError(data.error ?? "検索に失敗しました");
+      return;
+    }
+
+    const newRows: ResultRow[] = (data.results ?? []).map((r: any) => ({
+      ...r,
+      selected: !r.alreadyImported,
+    }));
+
+    if (pageToken) {
+      // 追加読み込み: 既存行に重複しないものだけ追記
+      const existingIds = new Set(rows.map((r) => r.placeId));
+      setRows((prev) => [...prev, ...newRows.filter((r) => !existingIds.has(r.placeId))]);
+    } else {
+      setRows(newRows);
+      setCurrentSearch({ query: searchQuery, prefSlug: searchPrefSlug });
+    }
+
+    setNextPageToken(data.nextPageToken ?? null);
+  }
+
   function handleSearch() {
     setSearchError("");
     setImportResult(null);
+    setNextPageToken(null);
     startTransition(async () => {
       try {
-        const res = await fetch("/api/places/search", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query, prefSlug }),
-        });
-        const data = await res.json();
-        if (!res.ok) { setSearchError(data.error ?? "検索に失敗しました"); return; }
-        setRows(
-          (data.results ?? []).map((r: any) => ({
-            ...r,
-            selected: !r.alreadyImported,
-          }))
-        );
+        await doSearch();
+      } catch {
+        setSearchError("ネットワークエラーが発生しました");
+      }
+    });
+  }
+
+  function handleLoadMore() {
+    if (!nextPageToken) return;
+    setSearchError("");
+    startTransition(async () => {
+      try {
+        await doSearch(nextPageToken);
       } catch {
         setSearchError("ネットワークエラーが発生しました");
       }
@@ -69,12 +106,11 @@ export function PlacesImporter({ prefectures }: { prefectures: Prefecture[] }) {
         const res = await fetch("/api/places/import", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ candidates: selected, prefectureId, query }),
+          body: JSON.stringify({ candidates: selected, prefectureId, query: currentSearch?.query ?? query }),
         });
         const data = await res.json();
         if (!res.ok) { setSearchError(data.error ?? "取込に失敗しました"); return; }
         setImportResult(data);
-        // Mark imported rows
         const importedNames = new Set(data.inserted);
         setRows((prev) =>
           prev.map((r) => (importedNames.has(r.name) ? { ...r, alreadyImported: true, selected: false } : r))
@@ -136,7 +172,7 @@ export function PlacesImporter({ prefectures }: { prefectures: Prefecture[] }) {
             className="btn btn-primary"
             style={{ whiteSpace: "nowrap" }}
           >
-            {isPending && !importResult ? "検索中..." : "Places 検索"}
+            {isPending && rows.length === 0 ? "検索中..." : "Places 検索"}
           </button>
         </div>
 
@@ -189,7 +225,7 @@ export function PlacesImporter({ prefectures }: { prefectures: Prefecture[] }) {
               disabled={isPending || selectedCount === 0}
               className="btn btn-primary btn-sm"
             >
-              {isPending && importResult === null ? "取込中..." : `選択した ${selectedCount} 件を取込む`}
+              {isPending && importResult !== null ? "取込中..." : `選択した ${selectedCount} 件を取込む`}
             </button>
           </div>
 
@@ -270,6 +306,24 @@ export function PlacesImporter({ prefectures }: { prefectures: Prefecture[] }) {
               </tbody>
             </table>
           </div>
+
+          {/* 次のページ読み込みボタン */}
+          {nextPageToken && (
+            <div style={{ textAlign: "center", marginTop: "0.875rem" }}>
+              <button
+                onClick={handleLoadMore}
+                disabled={isPending}
+                className="btn btn-sm"
+                style={{
+                  backgroundColor: "var(--color-white)",
+                  border: "1px solid var(--color-gray-300)",
+                  color: "var(--color-gray-700)",
+                }}
+              >
+                {isPending ? "読み込み中..." : "次の20件を読み込む"}
+              </button>
+            </div>
+          )}
         </>
       )}
 

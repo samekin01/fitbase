@@ -280,8 +280,7 @@ export default async function TopPage() {
               marginBottom: "1rem",
             }}
           >
-            東海エリアの<span style={{ color: "#D6FF38" }}>パーソナルジム</span>を、
-            <br />
+            東海エリアの<span style={{ color: "#D6FF38" }}>パーソナルジム</span>を、<br className="hero-br" />
             料金・特徴で比較して探す
           </h1>
 
@@ -320,6 +319,7 @@ export default async function TopPage() {
           <div className="container">
             <SectionHeading title="注目のパーソナルジム" href="/search?sort=rating" hrefLabel="すべて見る" />
             <div
+              className="grid-featured"
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(3, 1fr)",
@@ -469,6 +469,7 @@ export default async function TopPage() {
             {PREF_DATA.map((pref, idx) => (
               <div
                 key={pref.slug}
+                className="area-row"
                 style={{
                   display: "flex",
                   borderBottom:
@@ -478,6 +479,7 @@ export default async function TopPage() {
               >
                 {/* 都道府県列 */}
                 <div
+                  className="area-pref-col"
                   style={{
                     width: "148px",
                     minWidth: "148px",
@@ -773,7 +775,7 @@ export default async function TopPage() {
                   </div>
 
                   {/* 評価 + 料金 */}
-                  <div style={{ flexShrink: 0, textAlign: "right", minWidth: "140px" }}>
+                  <div className="ranking-right-col" style={{ flexShrink: 0, textAlign: "right", minWidth: "140px" }}>
                     {gym.google_rating && (
                       <p style={{ display: "flex", alignItems: "center", gap: "0.25rem", fontSize: "0.9375rem", margin: "0 0 0.3rem", justifyContent: "flex-end" }}>
                         <StarIcon size={14} style={{ color: "#D97706" }} />

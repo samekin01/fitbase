@@ -11,6 +11,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
   const query: string = (body.query ?? "").trim();
   const prefSlug: string = body.prefSlug ?? "";
+  const pageToken: string | undefined = body.pageToken || undefined;
 
   if (!query) return NextResponse.json({ error: "query は必須です" }, { status: 400 });
 
@@ -19,7 +20,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const candidates = await searchPlaces(query, prefSlug || undefined);
+    const { candidates, nextPageToken } = await searchPlaces(query, prefSlug || undefined, pageToken);
 
     // Check which place IDs are already in the DB
     const placeIds = candidates.map((c) => c.placeId).filter(Boolean);
@@ -32,6 +33,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       results: candidates.map((c) => ({ ...c, alreadyImported: importedSet.has(c.placeId) })),
+      nextPageToken: nextPageToken ?? null,
     });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });

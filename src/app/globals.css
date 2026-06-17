@@ -821,6 +821,102 @@ a:hover {
   text-decoration: none;
 }
 
+/* ─── モバイルナビゲーション ─── */
+.nav-mobile-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: var(--color-gray-700);
+  flex-shrink: 0;
+}
+
+.nav-mobile-menu {
+  display: none;
+  position: fixed;
+  top: 63px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #FFFFFF;
+  z-index: 200;
+  overflow-y: auto;
+  border-top: 1px solid var(--color-gray-200);
+}
+.nav-mobile-menu.is-open {
+  display: block;
+}
+
+/* ─── レスポンシブ ─── */
+
+/* モバイル (〜767px) */
+@media (max-width: 767px) {
+  /* ヘッダー */
+  .nav-desktop { display: none !important; }
+  .nav-mobile-toggle { display: flex !important; }
+
+  /* コンテナ */
+  .container { padding-inline: 1rem !important; }
+
+  /* ヒーロー改行非表示 */
+  .hero-br { display: none; }
+
+  /* 注目のジム 3→1カラム */
+  .grid-featured {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* エリアテーブル: 横並び→縦積み */
+  .area-row { flex-direction: column !important; }
+  .area-pref-col {
+    width: 100% !important;
+    min-width: unset !important;
+    border-right: none !important;
+    border-bottom: 1px solid #E5E7EB !important;
+    padding: 0.625rem 1rem !important;
+  }
+
+  /* ランキング右カラム非表示 */
+  .ranking-right-col { display: none !important; }
+
+  /* ジムリストアイテム: 横→縦 */
+  .gym-list-item { flex-direction: column !important; }
+  .gym-list-item__image-wrap {
+    width: 100% !important;
+    height: 180px !important;
+  }
+  .gym-list-item__header { flex-direction: column !important; gap: 0.375rem !important; }
+
+  /* 検索カード: 横→縦積み */
+  .hero-search-row {
+    flex-direction: column !important;
+  }
+  .hero-search-keyword { flex: none !important; }
+  .hero-search-area { flex: none !important; }
+  .hero-search-btn {
+    width: 100% !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    justify-content: center;
+  }
+
+  /* ページタイトル */
+  .page-title { font-size: 1.25rem !important; }
+}
+
+/* タブレット (640px〜1023px) */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .grid-featured {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .container { padding-inline: 1.25rem !important; }
+}
+
 /* ─── 信頼バー ─── */
 .trust-bar {
   background-color: var(--color-white);

@@ -107,6 +107,15 @@ export async function updateGym(id: string, formData: FormData) {
   return { success: true };
 }
 
+export async function updateGymStatus(gymId: string, status: string) {
+  const supabase = createAdminClient();
+  const { data: gym } = await supabase.from("gyms").select("slug, status").eq("id", gymId).single();
+  const { error } = await supabase.from("gyms").update({ status } as any).eq("id", gymId);
+  if (error) throw new Error(error.message);
+  if (gym?.slug) revalidatePath(`/gyms/${gym.slug}`);
+  revalidatePath("/admin/gyms");
+}
+
 export async function deleteGym(id: string) {
   const supabase = createAdminClient();
 

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { StatusBadge } from "@/components/ui/StatusBadge";
+import { GymStatusSelect } from "@/components/admin/GymStatusSelect";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "ジム一覧 | FitBase CMS" };
@@ -101,7 +101,7 @@ export default async function GymsListPage({
                   </td>
                   <td style={{ fontSize: "0.8125rem" }}>{(gym.prefectures as any)?.name ?? "—"}</td>
                   <td style={{ fontSize: "0.8125rem" }}>{(gym.cities as any)?.name ?? "—"}</td>
-                  <td><StatusBadge status={gym.status} /></td>
+                  <td><GymStatusSelect gymId={gym.id} currentStatus={gym.status} /></td>
                   <td style={{ fontSize: "0.75rem", color: "var(--color-gray-500)" }}>{gym.source}</td>
                   <td style={{ fontSize: "0.75rem", color: "var(--color-gray-500)" }}>
                     {new Date(gym.updated_at).toLocaleDateString("ja-JP")}

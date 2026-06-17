@@ -23,8 +23,9 @@ const PREF_CENTERS: Record<string, { lat: number; lng: number }> = {
 
 export async function searchPlaces(
   query: string,
-  prefSlug?: string
-): Promise<PlaceCandidate[]> {
+  prefSlug?: string,
+  pageToken?: string
+): Promise<{ candidates: PlaceCandidate[]; nextPageToken: string | null }> {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!apiKey) throw new Error("GOOGLE_MAPS_API_KEY が設定されていません");
 
@@ -35,14 +36,18 @@ export async function searchPlaces(
     maxResultCount: 20,
   };
 
-  const center = prefSlug ? PREF_CENTERS[prefSlug] : null;
-  if (center) {
-    body.locationBias = {
-      circle: {
-        center: { latitude: center.lat, longitude: center.lng },
-        radius: 50000,
-      },
-    };
+  if (pageToken) {
+    body.pageToken = pageToken;
+  } else {
+    const center = prefSlug ? PREF_CENTERS[prefSlug] : null;
+    if (center) {
+      body.locationBias = {
+        circle: {
+          center: { latitude: center.lat, longitude: center.lng },
+          radius: 50000,
+        },
+      };
+    }
   }
 
   const res = await fetch(`${PLACES_BASE}/places:searchText`, {
@@ -60,6 +65,7 @@ export async function searchPlaces(
         "places.nationalPhoneNumber",
         "places.websiteUri",
         "places.googleMapsUri",
+        "nextPageToken",
       ].join(","),
     },
     body: JSON.stringify(body),
@@ -72,7 +78,7 @@ export async function searchPlaces(
   }
 
   const data = await res.json();
-  return (data.places ?? []).map((p: any): PlaceCandidate => ({
+  const candidates = (data.places ?? []).map((p: any): PlaceCandidate => ({
     placeId: p.id ?? "",
     name: p.displayName?.text ?? "",
     address: p.formattedAddress ?? "",
@@ -84,6 +90,7 @@ export async function searchPlaces(
     websiteUri: p.websiteUri ?? null,
     mapsUri: p.googleMapsUri ?? null,
   }));
+  return { candidates, nextPageToken: data.nextPageToken ?? null };
 }
 
 export type PlaceDetails = PlaceCandidate & {

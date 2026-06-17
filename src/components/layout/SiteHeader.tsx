@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { MobileNav } from "./MobileNav";
 import {
   ChevronDownIcon,
   UsersIcon,
@@ -105,8 +106,8 @@ export function SiteHeader() {
             />
           </Link>
 
-          {/* ナビゲーション */}
-          <nav style={{ display: "flex", alignItems: "stretch", height: "60px" }}>
+          {/* ナビゲーション（デスクトップ） */}
+          <nav className="nav-desktop" style={{ display: "flex", alignItems: "stretch", height: "60px" }}>
             {/* ジムを探す（メガドロップダウン） */}
             <div className="nav-has-dropdown">
               <Link href="/search">
@@ -291,6 +292,9 @@ export function SiteHeader() {
               </Link>
             </div>
           </nav>
+
+          {/* ハンバーガー（モバイル） */}
+          <MobileNav />
         </div>
       </div>
     </header>
