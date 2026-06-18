@@ -1,15 +1,18 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { FeatureForm } from "@/components/admin/FeatureForm";
 import { createFeature } from "@/lib/actions/features";
+import { fetchAllRows } from "@/lib/supabase/paginate";
 
 export const metadata = { title: "特集作成 | FitBase CMS" };
 
 export default async function FeatureNewPage() {
   const supabase = createAdminClient();
-  const [{ data: prefectures }, { data: cities }, { data: stations }] = await Promise.all([
+  const [{ data: prefectures }, { data: cities }, stations] = await Promise.all([
     supabase.from("prefectures").select("*").order("sort_order"),
     supabase.from("cities").select("*").order("sort_order"),
-    supabase.from("stations").select("*").order("sort_order"),
+    fetchAllRows((from, to) =>
+      supabase.from("stations").select("*").order("sort_order").range(from, to)
+    ),
   ]);
 
   return (
@@ -20,7 +23,7 @@ export default async function FeatureNewPage() {
       <FeatureForm
         prefectures={prefectures ?? []}
         cities={cities ?? []}
-        stations={stations ?? []}
+        stations={stations}
         action={createFeature}
         submitLabel="作成する"
       />

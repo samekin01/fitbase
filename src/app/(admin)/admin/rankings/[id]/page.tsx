@@ -5,6 +5,7 @@ import { RankingForm } from "@/components/admin/RankingForm";
 import { ConfirmForm } from "@/components/admin/ConfirmForm";
 import { updateRanking, deleteRanking } from "@/lib/actions/rankings";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { fetchAllRows } from "@/lib/supabase/paginate";
 
 export const dynamic = "force-dynamic";
 
@@ -16,11 +17,13 @@ export default async function RankingEditPage({
   const { id } = await params;
   const supabase = createAdminClient();
 
-  const [{ data: ranking }, { data: prefectures }, { data: cities }, { data: stations }] = await Promise.all([
+  const [{ data: ranking }, { data: prefectures }, { data: cities }, stations] = await Promise.all([
     supabase.from("rankings").select("*").eq("id", id).single(),
     supabase.from("prefectures").select("*").order("sort_order"),
     supabase.from("cities").select("*").order("sort_order"),
-    supabase.from("stations").select("*").order("sort_order"),
+    fetchAllRows((from, to) =>
+      supabase.from("stations").select("*").order("sort_order").range(from, to)
+    ),
   ]);
 
   if (!ranking) notFound();
@@ -55,7 +58,7 @@ export default async function RankingEditPage({
         ranking={ranking}
         prefectures={prefectures ?? []}
         cities={cities ?? []}
-        stations={stations ?? []}
+        stations={stations}
         action={updateAction}
       />
 

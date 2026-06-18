@@ -6,6 +6,7 @@ import { DeleteGymButton } from "@/components/admin/DeleteGymButton";
 import { PlacesSyncButton } from "@/components/admin/PlacesSyncButton";
 import { updateGym, deleteGym } from "@/lib/actions/gyms";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { fetchAllRows } from "@/lib/supabase/paginate";
 
 export const dynamic = "force-dynamic";
 
@@ -21,14 +22,16 @@ export default async function GymEditPage({
     { data: gym },
     { data: prefectures },
     { data: cities },
-    { data: stations },
+    stations,
     { data: tags },
     { data: gymTags },
   ] = await Promise.all([
     supabase.from("gyms").select("*").eq("id", id).single(),
     supabase.from("prefectures").select("*").order("sort_order"),
     supabase.from("cities").select("*").order("sort_order"),
-    supabase.from("stations").select("*").order("sort_order"),
+    fetchAllRows((from, to) =>
+      supabase.from("stations").select("*").order("sort_order").range(from, to)
+    ),
     supabase.from("tags").select("*").order("name"),
     supabase.from("gym_tags").select("tag_id").eq("gym_id", id),
   ]);
@@ -81,7 +84,7 @@ export default async function GymEditPage({
         gym={gym}
         prefectures={prefectures ?? []}
         cities={cities ?? []}
-        stations={stations ?? []}
+        stations={stations}
         allTags={tags ?? []}
         assignedTagIds={assignedTagIds}
         action={updateAction}

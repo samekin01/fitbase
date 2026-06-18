@@ -4,7 +4,14 @@ import { useState, useRef } from "react";
 export default function StationImportPage() {
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
-  const [result, setResult] = useState<{ inserted: number; skipped: number; total: number } | null>(null);
+  const [result, setResult] = useState<{
+    inserted: number;
+    skipped: number;
+    skippedClosed: number;
+    skippedExisting: number;
+    total: number;
+    byPref: { name: string; count: number }[];
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -158,11 +165,21 @@ export default function StationImportPage() {
           <p style={{ fontWeight: 700, color: "#15803D", fontSize: "1rem", marginBottom: "0.5rem" }}>
             インポート完了
           </p>
-          <p style={{ fontSize: "0.875rem", color: "#166534" }}>
-            新規登録: <strong>{result.inserted}件</strong>
-            スキップ（登録済み・廃駅）: <strong>{result.skipped}件</strong>
-            合計対象: <strong>{result.total}件</strong>
-          </p>
+          <div style={{ fontSize: "0.875rem", color: "#166534", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+            <p>新規登録: <strong>{result.inserted}件</strong> / 合計対象: <strong>{result.total}件</strong></p>
+            <p style={{ color: "#4B7C5F" }}>
+              スキップ: {result.skipped}件（廃駅 {result.skippedClosed}件 + 登録済み {result.skippedExisting}件）
+            </p>
+            {result.byPref.length > 0 && (
+              <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginTop: "0.25rem" }}>
+                {result.byPref.map((p) => (
+                  <span key={p.name} style={{ backgroundColor: "#DCFCE7", borderRadius: "4px", padding: "2px 8px", fontWeight: 600 }}>
+                    {p.name}: {p.count}駅
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
 

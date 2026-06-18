@@ -9,6 +9,7 @@ import {
   ClipboardListIcon,
   TrophyIcon,
   ChevronRightIcon,
+  TrainIcon,
 } from "@/components/ui/Icons";
 
 export type GymSummary = {
@@ -26,6 +27,7 @@ export type GymSummary = {
   google_rating: number | null;
   google_review_count: number | null;
   image_url?: string | null;
+  nearest_station?: { name: string; walkMinutes: number } | null;
 };
 
 type Props = { gym: GymSummary };
@@ -97,6 +99,19 @@ export function GymListItem({ gym }: Props) {
               style={{ color: "var(--color-gray-400)", flexShrink: 0 }}
             />
             <span>{locationText}</span>
+          </div>
+        )}
+
+        {/* 最寄駅 */}
+        {gym.nearest_station && (
+          <div className="gym-list-item__location">
+            <TrainIcon
+              size={13}
+              style={{ color: "var(--color-gray-400)", flexShrink: 0 }}
+            />
+            <span>
+              {gym.nearest_station.name}駅 徒歩{gym.nearest_station.walkMinutes}分
+            </span>
           </div>
         )}
 

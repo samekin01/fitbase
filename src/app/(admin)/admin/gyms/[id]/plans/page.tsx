@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { upsertGymPlan, deleteGymPlan } from "@/lib/actions/gyms";
+import { ConfirmForm } from "@/components/admin/ConfirmForm";
 
 export const dynamic = "force-dynamic";
 
@@ -63,16 +64,13 @@ export default async function GymPlansPage({
                   <td>{plan.monthly_equivalent != null ? `¥${plan.monthly_equivalent.toLocaleString()}` : "—"}</td>
                   <td>{plan.sort_order}</td>
                   <td>
-                    <form action={deleteGymPlan.bind(null, id, plan.id)}>
-                      <button
-                        type="submit"
-                        className="btn btn-sm"
-                        style={{ backgroundColor: "transparent", color: "var(--color-error)", border: "1px solid var(--color-error)" }}
-                        onClick={(e) => { if (!confirm("削除しますか？")) e.preventDefault(); }}
-                      >
-                        削除
-                      </button>
-                    </form>
+                    <ConfirmForm
+                      action={deleteGymPlan.bind(null, id, plan.id)}
+                      message="削除しますか？"
+                      label="削除"
+                      buttonClassName="btn btn-sm"
+                      buttonStyle={{ backgroundColor: "transparent", color: "var(--color-error)", border: "1px solid var(--color-error)" }}
+                    />
                   </td>
                 </tr>
               ))}

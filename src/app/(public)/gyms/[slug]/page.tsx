@@ -5,7 +5,8 @@ import type { Metadata } from "next";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { GymListItem } from "@/components/gym/GymListItem";
-import { GYM_LIST_SELECT, toGymSummary } from "@/lib/gym-query";
+import { GYM_LIST_SELECT, toGymSummary, nearestStationInfo } from "@/lib/gym-query";
+import { TrainIcon } from "@/components/ui/Icons";
 
 export const revalidate = 3600;
 
@@ -63,9 +64,10 @@ export default async function GymDetailPage({
       description, recommended_points, target_users, trainer_info, facilities,
       has_nutrition_support, has_private_room, is_female_friendly, supports_contest, is_near_station,
       google_rating, google_review_count,
-      prefecture_id, city_id,
+      prefecture_id, city_id, latitude, longitude,
       prefectures:prefectures(name, slug),
-      cities:cities(name, slug)
+      cities:cities(name, slug),
+      stations(name, latitude, longitude)
     `)
     .eq("slug", slug)
     .eq("status", "published")
@@ -86,6 +88,7 @@ export default async function GymDetailPage({
   const otherImages = images?.filter((i: any) => i.id !== coverImage?.id) ?? [];
   const pref = gym.prefectures as any;
   const city = gym.cities as any;
+  const nearestStation = nearestStationInfo(gym);
   const tags = gymTags?.map((gt: any) => gt.tags).filter(Boolean) ?? [];
 
   const relatedAreaFilter = gym.city_id
@@ -173,9 +176,24 @@ export default async function GymDetailPage({
       <h1 className="page-title" style={{ marginBottom: "0.25rem" }}>
         {gym.name}
       </h1>
-      <p style={{ fontSize: "0.875rem", color: "var(--color-gray-600)", marginBottom: "1rem" }}>
+      <p style={{ fontSize: "0.875rem", color: "var(--color-gray-600)", marginBottom: "0.25rem" }}>
         {[gym.area_name, gym.address].filter(Boolean).join(" / ")}
       </p>
+      {nearestStation && (
+        <p
+          style={{
+            fontSize: "0.875rem",
+            color: "var(--color-gray-600)",
+            marginBottom: "1rem",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.25rem",
+          }}
+        >
+          <TrainIcon size={14} style={{ color: "var(--color-gray-400)", flexShrink: 0 }} />
+          {nearestStation.name}駅 徒歩{nearestStation.walkMinutes}分
+        </p>
+      )}
 
       <div className="gym-detail-layout" style={{ display: "flex", gap: "1.25rem", alignItems: "flex-start" }}>
         {/* ─── メインカラム ─── */}

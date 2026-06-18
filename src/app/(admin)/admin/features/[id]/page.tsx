@@ -5,6 +5,7 @@ import { FeatureForm } from "@/components/admin/FeatureForm";
 import { ConfirmForm } from "@/components/admin/ConfirmForm";
 import { updateFeature, deleteFeature } from "@/lib/actions/features";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { fetchAllRows } from "@/lib/supabase/paginate";
 
 export const dynamic = "force-dynamic";
 
@@ -16,11 +17,13 @@ export default async function FeatureEditPage({
   const { id } = await params;
   const supabase = createAdminClient();
 
-  const [{ data: feature }, { data: prefectures }, { data: cities }, { data: stations }] = await Promise.all([
+  const [{ data: feature }, { data: prefectures }, { data: cities }, stations] = await Promise.all([
     supabase.from("features").select("*").eq("id", id).single(),
     supabase.from("prefectures").select("*").order("sort_order"),
     supabase.from("cities").select("*").order("sort_order"),
-    supabase.from("stations").select("*").order("sort_order"),
+    fetchAllRows((from, to) =>
+      supabase.from("stations").select("*").order("sort_order").range(from, to)
+    ),
   ]);
 
   if (!feature) notFound();
@@ -55,7 +58,7 @@ export default async function FeatureEditPage({
         feature={feature}
         prefectures={prefectures ?? []}
         cities={cities ?? []}
-        stations={stations ?? []}
+        stations={stations}
         action={updateAction}
       />
 
