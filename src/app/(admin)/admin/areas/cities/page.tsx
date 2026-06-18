@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createCity, bulkInsertCities, PRESET_CITIES } from "@/lib/actions/cities";
+import { createCity, bulkInsertCities } from "@/lib/actions/cities";
+import { PRESET_CITIES } from "@/lib/city-presets";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "市区町村管理 | FitBase CMS" };
