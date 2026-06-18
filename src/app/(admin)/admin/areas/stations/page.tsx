@@ -40,9 +40,14 @@ export default async function StationsPage() {
         <h1 style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--color-gray-900)" }}>
           駅マスタ
         </h1>
-        <Link href="/admin/gyms/link-stations" className="btn btn-primary btn-sm">
-          最寄駅を自動リンク
-        </Link>
+        <div style={{ display: "flex", gap: "0.5rem" }}>
+          <Link href="/admin/areas/stations/import" className="btn btn-secondary btn-sm">
+            CSVから一括インポート
+          </Link>
+          <Link href="/admin/gyms/link-stations" className="btn btn-primary btn-sm">
+            最寄駅を自動リンク
+          </Link>
+        </div>
       </div>
 
       {/* ─── 一括登録 ─── */}
