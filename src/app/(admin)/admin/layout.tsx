@@ -20,6 +20,7 @@ const NAV_ITEMS = [
   { label: "記事", href: "/admin/articles" },
   { label: "タグ", href: "/admin/tags" },
   { label: "AI一括入力", href: "/admin/gyms/ai-fill" },
+  { label: "最寄駅リンク", href: "/admin/gyms/link-stations" },
   { label: "Places 収集", href: "/admin/places/import" },
   { label: "インポート履歴", href: "/admin/places/history" },
   { label: "管理申請", href: "/admin/requests/claims" },
