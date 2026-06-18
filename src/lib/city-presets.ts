@@ -30,6 +30,14 @@ export const PRESET_CITIES: Record<string, { name: string; slug: string; sort_or
     { name: "知立市", slug: "chiryu", sort_order: 28 },
     { name: "江南市", slug: "konan", sort_order: 29 },
     { name: "新城市", slug: "shinshiro", sort_order: 30 },
+    { name: "瀬戸市", slug: "seto", sort_order: 31 },
+    { name: "半田市", slug: "handa", sort_order: 32 },
+    { name: "豊川市", slug: "toyokawa", sort_order: 33 },
+    { name: "津島市", slug: "tsushima", sort_order: 34 },
+    { name: "碧南市", slug: "hekinan", sort_order: 35 },
+    { name: "蒲郡市", slug: "gamagori", sort_order: 36 },
+    { name: "犬山市", slug: "inuyama", sort_order: 37 },
+    { name: "常滑市", slug: "tokoname", sort_order: 38 },
   ],
   gifu: [
     { name: "岐阜市", slug: "gifu", sort_order: 1 },
@@ -52,6 +60,7 @@ export const PRESET_CITIES: Record<string, { name: string; slug: string; sort_or
     { name: "郡上市", slug: "gujo", sort_order: 18 },
     { name: "下呂市", slug: "gero", sort_order: 19 },
     { name: "飛騨市", slug: "hida", sort_order: 20 },
+    { name: "美濃市", slug: "mino", sort_order: 21 },
   ],
   mie: [
     { name: "津市", slug: "tsu", sort_order: 1 },
