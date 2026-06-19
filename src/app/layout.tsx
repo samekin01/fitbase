@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { ClickTracker } from "@/components/ClickTracker";
 import "./globals.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://fitbase.jp";
@@ -39,6 +40,7 @@ export default function RootLayout({
     <html lang="ja" suppressHydrationWarning>
       <body>
         {children}
+        <ClickTracker />
         {gaMeasurementId && (
           <>
             <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`} strategy="afterInteractive" />
