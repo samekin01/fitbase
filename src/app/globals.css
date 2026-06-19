@@ -1161,3 +1161,106 @@ a:hover {
   font-weight: 700;
   color: var(--color-gray-900);
 }
+
+/* ─── 管理画面: サイドバー ─── */
+.admin-nav-group-title {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--color-gray-400);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0 1rem;
+  margin: 1.125rem 0 0.375rem;
+}
+.admin-nav-group-title:first-child { margin-top: 0; }
+
+.admin-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4375rem 1rem;
+  margin-inline: 0.5rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-gray-600);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: background-color 0.12s, color 0.12s;
+}
+.admin-nav-link:hover {
+  background-color: var(--color-gray-50);
+  color: var(--color-gray-900);
+  text-decoration: none;
+}
+.admin-nav-link--active {
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-900);
+  font-weight: 700;
+  border-left-color: var(--color-accent-dark);
+}
+.admin-nav-link--top {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+.admin-nav-link__badge {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.3125rem;
+  border-radius: 999px;
+  background-color: #FEE2E2;
+  color: #B91C1C;
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+/* ─── 管理画面: ダッシュボード統計カード ─── */
+.admin-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xs);
+  padding: 1rem 1.125rem;
+  text-decoration: none;
+  transition: box-shadow 0.18s ease, transform 0.18s ease;
+}
+.admin-stat-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+.admin-stat-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+.admin-stat-card__label {
+  font-size: 0.8125rem;
+  color: var(--color-gray-500);
+  margin-bottom: 0.1875rem;
+}
+.admin-stat-card__value {
+  font-size: 1.625rem;
+  font-weight: 700;
+  color: var(--color-gray-900);
+  line-height: 1.2;
+}
+.admin-section-title {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-gray-500);
+  letter-spacing: 0.02em;
+  margin: 1.75rem 0 0.75rem;
+}
+.admin-section-title:first-child { margin-top: 0; }

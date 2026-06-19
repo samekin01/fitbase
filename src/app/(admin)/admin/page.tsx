@@ -1,7 +1,38 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  BuildingOfficeIcon,
+  CheckCircleIcon,
+  ClipboardListIcon,
+  UsersIcon,
+  ClipboardListIcon as UpdateIcon,
+  InboxIcon,
+} from "@/components/ui/Icons";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "ダッシュボード | FitBase CMS" };
+
+type Stat = {
+  label: string;
+  value: number;
+  href: string;
+  icon: React.ComponentType<{ size?: number }>;
+  color: string;
+  bg: string;
+};
+
+function StatCard({ stat }: { stat: Stat }) {
+  return (
+    <a href={stat.href} className="admin-stat-card">
+      <span className="admin-stat-card__icon" style={{ backgroundColor: stat.bg, color: stat.color }}>
+        <stat.icon size={22} />
+      </span>
+      <div>
+        <p className="admin-stat-card__label">{stat.label}</p>
+        <p className="admin-stat-card__value">{stat.value.toLocaleString()}</p>
+      </div>
+    </a>
+  );
+}
 
 export default async function DashboardPage() {
   const supabase = createAdminClient();
@@ -24,14 +55,66 @@ export default async function DashboardPage() {
     supabase.from("contacts").select("*", { count: "exact", head: true }).eq("status", "unread"),
   ]);
 
-  const stats = [
-    { label: "ジム総数", value: totalGyms ?? 0, href: "/admin/gyms" },
-    { label: "公開中", value: publishedGyms ?? 0, href: "/admin/gyms?status=published" },
-    { label: "下書き", value: draftGyms ?? 0, href: "/admin/gyms?status=draft" },
-    { label: "管理申請（未対応）", value: pendingClaims ?? 0, href: "/admin/requests/claims" },
-    { label: "修正依頼（未対応）", value: pendingUpdates ?? 0, href: "/admin/requests/updates" },
-    { label: "削除依頼（未対応）", value: pendingDeletes ?? 0, href: "/admin/requests/deletes" },
-    { label: "未読問い合わせ", value: unreadContacts ?? 0, href: "/admin/requests/contacts" },
+  const gymStats: Stat[] = [
+    {
+      label: "ジム総数",
+      value: totalGyms ?? 0,
+      href: "/admin/gyms",
+      icon: BuildingOfficeIcon,
+      color: "var(--color-gray-700)",
+      bg: "var(--color-gray-100)",
+    },
+    {
+      label: "公開中",
+      value: publishedGyms ?? 0,
+      href: "/admin/gyms?status=published",
+      icon: CheckCircleIcon,
+      color: "var(--color-success)",
+      bg: "#DCFCE7",
+    },
+    {
+      label: "下書き",
+      value: draftGyms ?? 0,
+      href: "/admin/gyms?status=draft",
+      icon: ClipboardListIcon,
+      color: "var(--color-warning)",
+      bg: "#FEF3C7",
+    },
+  ];
+
+  const requestStats: Stat[] = [
+    {
+      label: "管理申請（未対応）",
+      value: pendingClaims ?? 0,
+      href: "/admin/requests/claims",
+      icon: UsersIcon,
+      color: "var(--color-error)",
+      bg: "#FEE2E2",
+    },
+    {
+      label: "修正依頼（未対応）",
+      value: pendingUpdates ?? 0,
+      href: "/admin/requests/updates",
+      icon: UpdateIcon,
+      color: "var(--color-error)",
+      bg: "#FEE2E2",
+    },
+    {
+      label: "削除依頼（未対応）",
+      value: pendingDeletes ?? 0,
+      href: "/admin/requests/deletes",
+      icon: InboxIcon,
+      color: "var(--color-error)",
+      bg: "#FEE2E2",
+    },
+    {
+      label: "未読問い合わせ",
+      value: unreadContacts ?? 0,
+      href: "/admin/requests/contacts",
+      icon: InboxIcon,
+      color: "var(--color-error)",
+      bg: "#FEE2E2",
+    },
   ];
 
   return (
@@ -40,27 +123,17 @@ export default async function DashboardPage() {
         ダッシュボード
       </h1>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: "1rem" }}>
-        {stats.map((stat) => (
-          <a
-            key={stat.label}
-            href={stat.href}
-            style={{
-              display: "block",
-              backgroundColor: "var(--color-white)",
-              border: "1px solid var(--color-gray-200)",
-              borderRadius: "var(--radius-md)",
-              padding: "1rem",
-              textDecoration: "none",
-            }}
-          >
-            <p style={{ fontSize: "0.8125rem", color: "var(--color-gray-600)", marginBottom: "0.375rem" }}>
-              {stat.label}
-            </p>
-            <p style={{ fontSize: "1.75rem", fontWeight: 700, color: "var(--color-gray-900)" }}>
-              {stat.value}
-            </p>
-          </a>
+      <h2 className="admin-section-title">ジム統計</h2>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "1rem" }}>
+        {gymStats.map((stat) => (
+          <StatCard key={stat.label} stat={stat} />
+        ))}
+      </div>
+
+      <h2 className="admin-section-title">対応待ち</h2>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "1rem" }}>
+        {requestStats.map((stat) => (
+          <StatCard key={stat.label} stat={stat} />
         ))}
       </div>
     </div>

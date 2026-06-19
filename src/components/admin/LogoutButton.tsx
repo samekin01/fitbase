@@ -2,11 +2,19 @@
 
 import { logout } from "@/lib/actions/auth";
 
-export function LogoutButton({ className, style }: { className?: string; style?: React.CSSProperties }) {
+export function LogoutButton({
+  className,
+  style,
+  children,
+}: {
+  className?: string;
+  style?: React.CSSProperties;
+  children?: React.ReactNode;
+}) {
   return (
     <form action={logout}>
       <button type="submit" className={className} style={style}>
-        ログアウト
+        {children ?? "ログアウト"}
       </button>
     </form>
   );

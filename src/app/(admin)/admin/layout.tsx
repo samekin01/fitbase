@@ -1,33 +1,24 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { LogoutButton } from "@/components/admin/LogoutButton";
+import { AdminSidebarNav, type NavGroup } from "@/components/admin/AdminSidebarNav";
+import {
+  HomeIcon,
+  BuildingOfficeIcon,
+  MapPinIcon,
+  DocumentTextIcon,
+  GlobeAltIcon,
+  InboxIcon,
+  ArrowRightOnRectangleIcon,
+  ChartBarIcon,
+} from "@/components/ui/Icons";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
-
-const NAV_ITEMS = [
-  { label: "ダッシュボード", href: "/admin" },
-  { label: "ジム一覧", href: "/admin/gyms" },
-  { label: "ジム登録", href: "/admin/gyms/new" },
-  { label: "都道府県", href: "/admin/areas/prefectures" },
-  { label: "市区町村", href: "/admin/areas/cities" },
-  { label: "駅マスタ", href: "/admin/areas/stations" },
-  { label: "特集", href: "/admin/features" },
-  { label: "ランキング", href: "/admin/rankings" },
-  { label: "記事", href: "/admin/articles" },
-  { label: "タグ", href: "/admin/tags" },
-  { label: "AI一括入力", href: "/admin/gyms/ai-fill" },
-  { label: "最寄駅リンク", href: "/admin/gyms/link-stations" },
-  { label: "Places 収集", href: "/admin/places/import" },
-  { label: "インポート履歴", href: "/admin/places/history" },
-  { label: "管理申請", href: "/admin/requests/claims" },
-  { label: "修正依頼", href: "/admin/requests/updates" },
-  { label: "削除依頼", href: "/admin/requests/deletes" },
-  { label: "問い合わせ", href: "/admin/requests/contacts" },
-];
 
 export default async function AdminLayout({
   children,
@@ -55,12 +46,72 @@ export default async function AdminLayout({
     );
   }
 
+  const admin = createAdminClient();
+  const [{ count: pendingClaims }, { count: pendingUpdates }, { count: pendingDeletes }, { count: unreadContacts }] =
+    await Promise.all([
+      admin.from("gym_claims").select("*", { count: "exact", head: true }).eq("status", "pending"),
+      admin.from("gym_update_requests").select("*", { count: "exact", head: true }).eq("status", "pending"),
+      admin.from("gym_delete_requests").select("*", { count: "exact", head: true }).eq("status", "pending"),
+      admin.from("contacts").select("*", { count: "exact", head: true }).eq("status", "unread"),
+    ]);
+  const pendingRequestsTotal =
+    (pendingClaims ?? 0) + (pendingUpdates ?? 0) + (pendingDeletes ?? 0) + (unreadContacts ?? 0);
+
+  const navGroups: NavGroup[] = [
+    {
+      icon: <HomeIcon size={16} />,
+      links: [{ label: "ダッシュボード", href: "/admin" }],
+    },
+    {
+      title: "ジム管理",
+      icon: <BuildingOfficeIcon size={13} />,
+      links: [
+        { label: "ジム一覧", href: "/admin/gyms" },
+        { label: "AI一括入力", href: "/admin/gyms/ai-fill" },
+        { label: "最寄駅リンク", href: "/admin/gyms/link-stations" },
+      ],
+    },
+    {
+      title: "エリア",
+      icon: <MapPinIcon size={13} />,
+      links: [{ label: "エリアマスタ", href: "/admin/areas" }],
+    },
+    {
+      title: "コンテンツ",
+      icon: <DocumentTextIcon size={13} />,
+      links: [
+        { label: "特集", href: "/admin/features" },
+        { label: "ランキング", href: "/admin/rankings" },
+        { label: "記事", href: "/admin/articles" },
+        { label: "タグ", href: "/admin/tags" },
+      ],
+    },
+    {
+      title: "外部連携",
+      icon: <GlobeAltIcon size={13} />,
+      links: [{ label: "Google Places連携", href: "/admin/places" }],
+    },
+    {
+      title: "申請・問い合わせ",
+      icon: <InboxIcon size={13} />,
+      links: [{ label: "申請一覧", href: "/admin/requests", badge: pendingRequestsTotal }],
+    },
+    {
+      title: "SEO・分析",
+      icon: <ChartBarIcon size={13} />,
+      links: [
+        { label: "SEO管理", href: "/admin/seo" },
+        { label: "アナリティクス", href: "/admin/analytics" },
+      ],
+    },
+  ];
+
   return (
     <div style={{ display: "flex", minHeight: "100vh", backgroundColor: "var(--color-gray-50)" }}>
       {/* サイドバー */}
       <aside
         style={{
-          width: "200px",
+          width: "212px",
           flexShrink: 0,
           backgroundColor: "var(--color-white)",
           borderRight: "1px solid var(--color-gray-200)",
@@ -71,34 +122,37 @@ export default async function AdminLayout({
         {/* ロゴ */}
         <div
           style={{
-            padding: "1rem",
+            padding: "0.875rem 1rem",
             borderBottom: "1px solid var(--color-gray-200)",
-            fontSize: "0.9375rem",
-            fontWeight: 700,
-            color: "var(--color-gray-900)",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
           }}
         >
-          FitBase CMS
+          <Image
+            src="/logo-header-v2.png"
+            alt="FitBase"
+            width={1350}
+            height={440}
+            style={{ height: "26px", width: "auto", display: "block" }}
+            priority
+          />
+          <span
+            style={{
+              fontSize: "0.6875rem",
+              fontWeight: 700,
+              color: "var(--color-gray-400)",
+              letterSpacing: "0.04em",
+              border: "1px solid var(--color-gray-200)",
+              borderRadius: "3px",
+              padding: "0.0625rem 0.3125rem",
+            }}
+          >
+            CMS
+          </span>
         </div>
 
-        {/* ナビ */}
-        <nav style={{ flex: 1, overflowY: "auto", padding: "0.5rem 0" }}>
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              style={{
-                display: "block",
-                padding: "0.4375rem 1rem",
-                fontSize: "0.8125rem",
-                color: "var(--color-gray-700)",
-                textDecoration: "none",
-              }}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        <AdminSidebarNav groups={navGroups} />
 
         {/* フッター */}
         <div
@@ -109,7 +163,9 @@ export default async function AdminLayout({
             color: "var(--color-gray-500)",
           }}
         >
-          <p style={{ marginBottom: "0.375rem" }}>{user.email}</p>
+          <p style={{ marginBottom: "0.375rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {user.email}
+          </p>
           <LogoutButton
             style={{
               background: "none",
@@ -118,8 +174,14 @@ export default async function AdminLayout({
               fontSize: "0.75rem",
               color: "var(--color-link)",
               cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.375rem",
             }}
-          />
+          >
+            <ArrowRightOnRectangleIcon size={14} />
+            ログアウト
+          </LogoutButton>
         </div>
       </aside>
 
