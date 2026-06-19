@@ -21,6 +21,12 @@ const AVAILABLE_TAGS = [
   { slug: "senior",            name: "高齢者対応" },
 ];
 
+// .slice() による切り詰めが絵文字等のサロゲートペアの間で発生すると、
+// 不完全な（対になっていない）サロゲートが残りJSON送信時にAPIエラーになるため除去する
+function stripLoneSurrogates(s: string): string {
+  return s.replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])/g, "").replace(/(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, "");
+}
+
 async function scrapeWebsite(url: string): Promise<string> {
   try {
     const controller = new AbortController();
@@ -32,7 +38,7 @@ async function scrapeWebsite(url: string): Promise<string> {
     clearTimeout(timer);
     if (!res.ok) return "";
     const html = await res.text();
-    return html
+    const text = html
       .replace(/<script[\s\S]*?<\/script>/gi, "")
       .replace(/<style[\s\S]*?<\/style>/gi, "")
       .replace(/<[^>]+>/g, " ")
@@ -43,6 +49,7 @@ async function scrapeWebsite(url: string): Promise<string> {
       .replace(/\s+/g, " ")
       .trim()
       .slice(0, 6000);
+    return stripLoneSurrogates(text);
   } catch {
     return "";
   }

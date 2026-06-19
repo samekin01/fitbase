@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
@@ -8,6 +9,13 @@ import { renderMarkdown } from "@/lib/markdown";
 import { toGymSummary } from "@/lib/gym-query";
 
 export const revalidate = 3600;
+
+function rankTier(rank: number) {
+  if (rank === 1) return { border: "#F2C94C", bg: "#FFFBEA", badgeBg: "#F2C94C", badgeText: "#5C4400", label: "総合1位" };
+  if (rank === 2) return { border: "#C7CCD1", bg: "#F7F8F9", badgeBg: "#C7CCD1", badgeText: "#33383D", label: "総合2位" };
+  if (rank === 3) return { border: "#E0A872", bg: "#FBF1E8", badgeBg: "#E0A872", badgeText: "#4A2E12", label: "総合3位" };
+  return { border: "var(--color-gray-200)", bg: "var(--color-white)", badgeBg: "var(--color-gray-900)", badgeText: "#FFFFFF", label: null as string | null };
+}
 
 export async function generateStaticParams() {
   const supabase = createAdminClient();
@@ -24,7 +32,7 @@ export async function generateMetadata({
   const supabase = createAdminClient();
   const { data: ranking } = await supabase
     .from("rankings")
-    .select("title, seo_title, meta_description")
+    .select("title, seo_title, meta_description, eyecatch_image_url")
     .eq("slug", slug)
     .eq("status", "published")
     .single();
@@ -34,7 +42,13 @@ export async function generateMetadata({
     title,
     description: ranking.meta_description,
     alternates: { canonical: `/rankings/${slug}/` },
-    openGraph: { title, description: ranking.meta_description ?? undefined, url: `/rankings/${slug}/`, type: "website" },
+    openGraph: {
+      title,
+      description: ranking.meta_description ?? undefined,
+      url: `/rankings/${slug}/`,
+      type: "website",
+      images: ranking.eyecatch_image_url ? [ranking.eyecatch_image_url] : undefined,
+    },
   };
 }
 
@@ -64,13 +78,15 @@ export default async function RankingDetailPage({
         monthly_fee_min, total_price_min,
         has_trial, is_female_friendly, has_private_room, has_nutrition_support, supports_contest, is_near_station,
         google_rating, google_review_count,
-        gym_images(url, is_cover)
+        gym_images(image_url, is_cover)
       )
     `)
     .eq("ranking_id", ranking.id)
-    .order("rank");
+    .order("rank", { ascending: false });
 
   const gymRows = (rows ?? []).filter((r: any) => r.gyms?.status === "published");
+  const top3 = [...gymRows].filter((r: any) => r.rank <= 3).sort((a: any, b: any) => a.rank - b.rank);
+  const ascRows = [...gymRows].sort((a: any, b: any) => a.rank - b.rank);
 
   const { data: related } = await supabase
     .from("rankings")
@@ -133,6 +149,17 @@ export default async function RankingDetailPage({
       </div>
       <h1 className="page-title">{ranking.title}</h1>
 
+      {ranking.eyecatch_image_url && (
+        <Image
+          src={ranking.eyecatch_image_url}
+          alt={ranking.title}
+          width={1280}
+          height={720}
+          style={{ width: "100%", height: "auto", borderRadius: "var(--radius-md)", marginBottom: "1.5rem" }}
+          priority
+        />
+      )}
+
       {content && (
         <>
           <TocBox items={toc} />
@@ -142,36 +169,100 @@ export default async function RankingDetailPage({
 
       {gymRows.length > 0 && (
         <section style={{ marginBottom: "2.5rem" }}>
-          <h2 className="section-title">ランキング</h2>
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-            {gymRows.map((r: any) => (
-              <div key={r.gyms.id} style={{ position: "relative" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.375rem" }}>
-                  <span
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: "1.75rem",
-                      height: "1.75rem",
-                      borderRadius: "50%",
-                      backgroundColor: "var(--color-primary)",
-                      color: "var(--color-white)",
-                      fontWeight: 700,
-                      fontSize: "0.8125rem",
-                      flexShrink: 0,
-                    }}
-                  >
-                    {r.rank}
-                  </span>
-                  {r.reason && (
-                    <p style={{ fontSize: "0.8125rem", color: "var(--color-gray-600)", margin: 0 }}>{r.reason}</p>
-                  )}
-                </div>
-                <GymListItem gym={toGymSummary(r.gyms)} />
-              </div>
-            ))}
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1rem" }}>
+            <h2 className="section-title" style={{ marginBottom: 0 }}>ランキング</h2>
+            <span style={{ fontSize: "0.8125rem", color: "var(--color-gray-500)" }}>
+              全{gymRows.length}件・{gymRows.length}位から1位まで紹介
+            </span>
           </div>
+
+          {top3.length > 0 && (
+            <div className="ranking-podium">
+              {top3.map((r: any) => {
+                const g = toGymSummary(r.gyms);
+                const tier = rankTier(r.rank);
+                return (
+                  <a key={r.gyms.id} href={`#rank-${r.rank}`} className={`ranking-podium__item ranking-podium__item--${r.rank}`}>
+                    <span className="ranking-podium__badge" style={{ backgroundColor: tier.badgeBg, color: tier.badgeText }}>
+                      {r.rank}
+                    </span>
+                    <div className="ranking-podium__image-wrap">
+                      {g.image_url ? (
+                        <Image src={g.image_url} alt={g.name} width={160} height={120} className="ranking-podium__image" />
+                      ) : (
+                        <div className="gym-list-item__no-image" style={{ width: "100%", height: "100%" }}>
+                          <span>写真なし</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="ranking-podium__name">{g.name}</div>
+                    <div className="ranking-podium__price">
+                      月額{" "}
+                      {g.monthly_fee_min != null ? (
+                        <>
+                          <strong>¥{g.monthly_fee_min.toLocaleString()}</strong>〜
+                        </>
+                      ) : (
+                        "要問合せ"
+                      )}
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+          )}
+
+          {ascRows.length > 1 && (
+            <div className="ranking-jumpnav">
+              {ascRows.map((r: any) => (
+                <a key={r.gyms.id} href={`#rank-${r.rank}`} className="ranking-jumpnav__item">
+                  <span className="ranking-jumpnav__rank">{r.rank}</span>
+                  {r.gyms.name}
+                </a>
+              ))}
+            </div>
+          )}
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+            {gymRows.map((r: any) => {
+              const tier = rankTier(r.rank);
+              return (
+                <div
+                  key={r.gyms.id}
+                  id={`rank-${r.rank}`}
+                  className={`ranking-entry${r.rank <= 3 ? " ranking-entry--top" : ""}`}
+                  style={{ borderColor: tier.border, backgroundColor: tier.bg }}
+                >
+                  <div className="ranking-entry__head">
+                    <span className="ranking-entry__rank" style={{ backgroundColor: tier.badgeBg, color: tier.badgeText }}>
+                      {r.rank}
+                    </span>
+                    <h3 className="ranking-entry__name">{r.gyms.name}</h3>
+                    {tier.label && (
+                      <span className="badge ranking-entry__tier-badge" style={{ backgroundColor: tier.badgeBg, color: tier.badgeText }}>
+                        {tier.label}
+                      </span>
+                    )}
+                  </div>
+                  {r.reason && (
+                    <>
+                      <span className="ranking-entry__reason-label">おすすめポイント</span>
+                      <p className="ranking-entry__reason">{r.reason}</p>
+                    </>
+                  )}
+                  <GymListItem gym={toGymSummary(r.gyms)} />
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {ranking.closing_md && (
+        <section className="ranking-closing" style={{ marginBottom: "2.5rem" }}>
+          <p style={{ fontSize: "0.9375rem", color: "var(--color-gray-700)", lineHeight: 1.8, margin: 0 }}>
+            {ranking.closing_md}
+          </p>
         </section>
       )}
 

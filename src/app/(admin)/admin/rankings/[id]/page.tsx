@@ -2,8 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { RankingForm } from "@/components/admin/RankingForm";
+import { RankingThumbnailGenerator } from "@/components/admin/RankingThumbnailGenerator";
+import { RankingThumbnailEditor } from "@/components/admin/RankingThumbnailEditor";
 import { ConfirmForm } from "@/components/admin/ConfirmForm";
-import { updateRanking, deleteRanking } from "@/lib/actions/rankings";
+import { updateRanking, deleteRanking, uploadRankingThumbnail } from "@/lib/actions/rankings";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { fetchAllRows } from "@/lib/supabase/paginate";
 
@@ -30,6 +32,7 @@ export default async function RankingEditPage({
 
   const updateAction = updateRanking.bind(null, id);
   const deleteAction = deleteRanking.bind(null, id);
+  const uploadThumbnailAction = uploadRankingThumbnail.bind(null, id);
 
   return (
     <div style={{ maxWidth: "800px" }}>
@@ -52,6 +55,32 @@ export default async function RankingEditPage({
             </a>
           )}
         </div>
+      </div>
+
+      <div style={{ display: "flex", gap: "1rem", alignItems: "flex-start", flexWrap: "wrap" }}>
+        <div style={{ flex: "0 0 280px" }}>
+          <RankingThumbnailGenerator rankingId={id} imageUrl={ranking.eyecatch_image_url} />
+
+          <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem" }}>
+            <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "0.75rem" }}>画像をアップロード</h2>
+            <p style={{ fontSize: "0.8125rem", color: "var(--color-gray-500)", marginBottom: "0.75rem" }}>
+              JPEG / PNG / WebP対応。最大5MB。自分で用意した画像をアイキャッチに設定できます。
+              <br />
+              推奨サイズ: 1280×720px（横16:9）。比率が違う画像は表示時に上下または左右が切れます。
+            </p>
+            <form action={uploadThumbnailAction} style={{ display: "flex", flexDirection: "column", gap: "0.625rem" }}>
+              <input name="file" type="file" required accept="image/jpeg,image/png,image/webp" className="form-input" />
+              <button type="submit" className="btn btn-primary btn-sm" style={{ alignSelf: "flex-start" }}>
+                アップロード
+              </button>
+            </form>
+          </div>
+        </div>
+        {ranking.eyecatch_image_url && (
+          <div style={{ flex: "1 1 480px" }}>
+            <RankingThumbnailEditor key={ranking.eyecatch_image_url} rankingId={id} imageUrl={ranking.eyecatch_image_url} />
+          </div>
+        )}
       </div>
 
       <RankingForm

@@ -1,9 +1,23 @@
 import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { GymStatusSelect } from "@/components/admin/GymStatusSelect";
+import { ConfirmForm } from "@/components/admin/ConfirmForm";
+import { deleteGym, updateGymStatus } from "@/lib/actions/gyms";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "ジム一覧 | FitBase CMS" };
+
+function buildPageList(current: number, total: number): (number | "...")[] {
+  const pages: (number | "...")[] = [];
+  for (let p = 1; p <= total; p++) {
+    if (p === 1 || p === total || (p >= current - 2 && p <= current + 2)) {
+      pages.push(p);
+    } else if (pages[pages.length - 1] !== "...") {
+      pages.push("...");
+    }
+  }
+  return pages;
+}
 
 const STATUS_OPTIONS = [
   { value: "", label: "すべて" },
@@ -101,13 +115,29 @@ export default async function GymsListPage({
                   </td>
                   <td style={{ fontSize: "0.8125rem" }}>{(gym.prefectures as any)?.name ?? "—"}</td>
                   <td style={{ fontSize: "0.8125rem" }}>{(gym.cities as any)?.name ?? "—"}</td>
-                  <td><GymStatusSelect gymId={gym.id} currentStatus={gym.status} /></td>
+                  <td><GymStatusSelect key={gym.status} gymId={gym.id} currentStatus={gym.status} /></td>
                   <td style={{ fontSize: "0.75rem", color: "var(--color-gray-500)" }}>{gym.source}</td>
                   <td style={{ fontSize: "0.75rem", color: "var(--color-gray-500)" }}>
                     {new Date(gym.updated_at).toLocaleDateString("ja-JP")}
                   </td>
                   <td>
-                    <Link href={`/admin/gyms/${gym.id}`} className="btn btn-secondary btn-sm">編集</Link>
+                    <div style={{ display: "flex", gap: "0.375rem" }}>
+                      <Link href={`/admin/gyms/${gym.id}`} className="btn btn-secondary btn-sm">編集</Link>
+                      {gym.status !== "published" && (
+                        <form action={updateGymStatus.bind(null, gym.id, "published")}>
+                          <button type="submit" className="btn btn-sm" style={{ backgroundColor: "#16A34A", color: "white", border: "none" }}>
+                            公開
+                          </button>
+                        </form>
+                      )}
+                      <ConfirmForm
+                        message={`「${gym.name}」を削除しますか？この操作は取り消せません。`}
+                        action={deleteGym.bind(null, gym.id)}
+                        label="削除"
+                        buttonClassName="btn btn-sm"
+                        buttonStyle={{ backgroundColor: "transparent", color: "var(--color-error)", border: "1px solid var(--color-error)" }}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))
@@ -124,16 +154,34 @@ export default async function GymsListPage({
 
       {/* ページネーション */}
       {totalPages > 1 && (
-        <div style={{ display: "flex", gap: "0.25rem", marginTop: "1rem", justifyContent: "center" }}>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-            <a
-              key={p}
-              href={`?${new URLSearchParams({ status, q, page: String(p) })}`}
-              className={`pagination__item${p === page ? " pagination__item--active" : ""}`}
-            >
-              {p}
-            </a>
-          ))}
+        <div style={{ display: "flex", gap: "0.25rem", marginTop: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
+          <a
+            href={`?${new URLSearchParams({ status, q, page: String(Math.max(1, page - 1)) })}`}
+            className={`pagination__item${page <= 1 ? " pagination__item--disabled" : ""}`}
+          >
+            ‹
+          </a>
+          {buildPageList(page, totalPages).map((p, i) =>
+            p === "..." ? (
+              <span key={`ellipsis-${i}`} className="pagination__item" style={{ border: "none", cursor: "default" }}>
+                …
+              </span>
+            ) : (
+              <a
+                key={p}
+                href={`?${new URLSearchParams({ status, q, page: String(p) })}`}
+                className={`pagination__item${p === page ? " pagination__item--active" : ""}`}
+              >
+                {p}
+              </a>
+            )
+          )}
+          <a
+            href={`?${new URLSearchParams({ status, q, page: String(Math.min(totalPages, page + 1)) })}`}
+            className={`pagination__item${page >= totalPages ? " pagination__item--disabled" : ""}`}
+          >
+            ›
+          </a>
         </div>
       )}
     </div>

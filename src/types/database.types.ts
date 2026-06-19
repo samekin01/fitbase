@@ -942,7 +942,9 @@ export type Database = {
           body_md: string | null
           category: string | null
           city_id: string | null
+          closing_md: string | null
           created_at: string
+          eyecatch_image_url: string | null
           id: string
           meta_description: string | null
           prefecture_id: string | null
@@ -957,7 +959,9 @@ export type Database = {
           body_md?: string | null
           category?: string | null
           city_id?: string | null
+          closing_md?: string | null
           created_at?: string
+          eyecatch_image_url?: string | null
           id?: string
           meta_description?: string | null
           prefecture_id?: string | null
@@ -972,7 +976,9 @@ export type Database = {
           body_md?: string | null
           category?: string | null
           city_id?: string | null
+          closing_md?: string | null
           created_at?: string
+          eyecatch_image_url?: string | null
           id?: string
           meta_description?: string | null
           prefecture_id?: string | null
@@ -1055,6 +1061,7 @@ export type Database = {
           id: string
           name: string
           slug: string
+          sort_order: number
         }
         Insert: {
           category?: string | null
@@ -1062,6 +1069,7 @@ export type Database = {
           id?: string
           name: string
           slug: string
+          sort_order?: number
         }
         Update: {
           category?: string | null
@@ -1069,6 +1077,7 @@ export type Database = {
           id?: string
           name?: string
           slug?: string
+          sort_order?: number
         }
         Relationships: []
       }

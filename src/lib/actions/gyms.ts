@@ -116,6 +116,20 @@ export async function updateGymStatus(gymId: string, status: string) {
   revalidatePath("/admin/gyms");
 }
 
+// AI一括入力済み（description設定済み）かつジム判定を通過した（hiddenにされていない）
+// 下書きジムを一括公開する
+export async function bulkPublishFilledGyms() {
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("gyms")
+    .update({ status: "published" } as any)
+    .eq("status", "draft")
+    .not("description", "is", null);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/gyms");
+  revalidatePath("/admin/gyms/ai-fill");
+}
+
 export async function deleteGym(id: string) {
   const supabase = createAdminClient();
 

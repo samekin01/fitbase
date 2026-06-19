@@ -12,6 +12,9 @@ export async function POST(req: NextRequest) {
   const query: string = (body.query ?? "").trim();
   const prefSlug: string = body.prefSlug ?? "";
   const pageToken: string | undefined = body.pageToken || undefined;
+  const lat: number | undefined = typeof body.lat === "number" ? body.lat : undefined;
+  const lng: number | undefined = typeof body.lng === "number" ? body.lng : undefined;
+  const radius: number = typeof body.radius === "number" ? body.radius : 1200;
 
   if (!query) return NextResponse.json({ error: "query は必須です" }, { status: 400 });
 
@@ -20,7 +23,8 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { candidates, nextPageToken } = await searchPlaces(query, prefSlug || undefined, pageToken);
+    const customCenter = lat != null && lng != null ? { lat, lng, radius } : undefined;
+    const { candidates, nextPageToken } = await searchPlaces(query, prefSlug || undefined, pageToken, customCenter);
 
     // Check which place IDs are already in the DB
     const placeIds = candidates.map((c) => c.placeId).filter(Boolean);

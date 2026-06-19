@@ -47,6 +47,12 @@ export function RankingForm({ ranking, prefectures, cities, stations, action, su
           <Field label="カテゴリ">
             <input name="category" type="text" defaultValue={ranking?.category ?? ""} className="form-input" placeholder="例: 安さ重視" />
           </Field>
+          <Field label="アイキャッチ画像URL">
+            <input name="eyecatch_image_url" type="url" defaultValue={ranking?.eyecatch_image_url ?? ""} className="form-input" placeholder="https://..." />
+            <p style={{ fontSize: "0.75rem", color: "var(--color-gray-500)", marginTop: "0.25rem" }}>
+              推奨サイズ: 1280×720px（横16:9）
+            </p>
+          </Field>
           <Field label="ステータス">
             <select name="status" defaultValue={ranking?.status ?? "draft"} className="form-input">
               {STATUSES.map((s) => (
@@ -88,8 +94,19 @@ export function RankingForm({ ranking, prefectures, cities, stations, action, su
       </div>
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1rem" }}>
-        <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>本文（Markdown）</h2>
-        <textarea name="body_md" rows={14} defaultValue={ranking?.body_md ?? ""} className="form-input" style={{ resize: "vertical", fontFamily: "monospace", fontSize: "0.8125rem" }} />
+        <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "0.25rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>導入文（Markdown）</h2>
+        <p style={{ fontSize: "0.8125rem", color: "var(--color-gray-500)", margin: "0.5rem 0" }}>
+          ランキング本文の先頭に表示される導入文です。各ジムの紹介文は「ランクイン管理」画面で順位ごとに編集します。
+        </p>
+        <textarea name="body_md" rows={10} defaultValue={ranking?.body_md ?? ""} className="form-input" style={{ resize: "vertical", fontFamily: "monospace", fontSize: "0.8125rem" }} />
+      </div>
+
+      <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1rem" }}>
+        <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "0.25rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>クロージング文（Markdown）</h2>
+        <p style={{ fontSize: "0.8125rem", color: "var(--color-gray-500)", margin: "0.5rem 0" }}>
+          ランキング本文の最後（ジム紹介の後）に表示されます。
+        </p>
+        <textarea name="closing_md" rows={6} defaultValue={ranking?.closing_md ?? ""} className="form-input" style={{ resize: "vertical", fontFamily: "monospace", fontSize: "0.8125rem" }} />
       </div>
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1rem" }}>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { addRankingGym, removeRankingGym, updateRankingGym } from "@/lib/actions/rankings";
+import { addRankingGym, removeRankingGym, updateRankingGym, autoRankGyms } from "@/lib/actions/rankings";
 import { ConfirmForm } from "@/components/admin/ConfirmForm";
 
 export const dynamic = "force-dynamic";
@@ -15,7 +15,7 @@ export default async function RankingGymsPage({
   const supabase = createAdminClient();
 
   const [{ data: ranking }, { data: rows }, { data: gyms }] = await Promise.all([
-    supabase.from("rankings").select("id, title").eq("id", id).single(),
+    supabase.from("rankings").select("id, title, city_id, prefecture_id").eq("id", id).single(),
     supabase
       .from("ranking_gyms")
       .select("id, rank, reason, gyms(id, name, status)")
@@ -29,6 +29,8 @@ export default async function RankingGymsPage({
   const assignedGymIds = new Set((rows ?? []).map((r: any) => r.gyms?.id));
   const availableGyms = (gyms ?? []).filter((g: any) => !assignedGymIds.has(g.id));
   const addAction = addRankingGym.bind(null, id);
+  const autoRankAction = autoRankGyms.bind(null, id);
+  const canAutoRank = Boolean(ranking.city_id || ranking.prefecture_id);
 
   return (
     <div style={{ maxWidth: "900px" }}>
@@ -40,6 +42,25 @@ export default async function RankingGymsPage({
           ランクイン管理
         </h1>
       </div>
+
+      {canAutoRank && (
+        <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1.5rem" }}>
+          <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "0.25rem" }}>自動並び替え</h2>
+          <p style={{ fontSize: "0.8125rem", color: "var(--color-gray-500)", marginBottom: "0.75rem" }}>
+            評価（レビュー数で信頼度補正）70%＋価格30%のスコアでエリア内の公開ジムを並べ替え、現在のランクイン一覧を上書きします。
+          </p>
+          <ConfirmForm
+            action={autoRankAction}
+            message="現在のランクイン一覧を上書きして自動生成します。よろしいですか？"
+            label="自動並び替えを実行"
+            buttonClassName="btn btn-primary btn-sm"
+          >
+            <label className="form-label" htmlFor="limit" style={{ marginBottom: 0 }}>上位</label>
+            <input id="limit" name="limit" type="number" min="1" max="50" defaultValue={10} className="form-input" style={{ width: "70px" }} />
+            <span style={{ fontSize: "0.8125rem", color: "var(--color-gray-500)" }}>件</span>
+          </ConfirmForm>
+        </div>
+      )}
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1.5rem" }}>
         <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "0.75rem" }}>ジムを追加</h2>

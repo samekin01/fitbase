@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
@@ -15,7 +16,7 @@ export default async function RankingsListPage() {
   const supabase = createAdminClient();
   const { data: rankings } = await supabase
     .from("rankings")
-    .select("title, slug, category, prefectures(name), cities(name)")
+    .select("title, slug, category, eyecatch_image_url, prefectures(name), cities(name)")
     .eq("status", "published")
     .order("created_at", { ascending: false });
 
@@ -33,15 +34,26 @@ export default async function RankingsListPage() {
               key={r.slug}
               href={`/rankings/${r.slug}/`}
               className="card card-hover"
-              style={{ display: "block", padding: "1rem 1.25rem", textDecoration: "none" }}
+              style={{ display: "flex", gap: "1rem", padding: "1rem 1.25rem", textDecoration: "none", alignItems: "center" }}
             >
-              <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.375rem" }}>
-                {r.category && <span className="badge badge-blue">{r.category}</span>}
-                {(r.cities?.name ?? r.prefectures?.name) && (
-                  <span className="badge badge-gray">{r.cities?.name ?? r.prefectures?.name}</span>
-                )}
+              {r.eyecatch_image_url && (
+                <Image
+                  src={r.eyecatch_image_url}
+                  alt={r.title}
+                  width={128}
+                  height={72}
+                  style={{ width: "128px", height: "72px", objectFit: "cover", borderRadius: "var(--radius-sm)", flexShrink: 0 }}
+                />
+              )}
+              <div style={{ minWidth: 0 }}>
+                <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.375rem" }}>
+                  {r.category && <span className="badge badge-blue">{r.category}</span>}
+                  {(r.cities?.name ?? r.prefectures?.name) && (
+                    <span className="badge badge-gray">{r.cities?.name ?? r.prefectures?.name}</span>
+                  )}
+                </div>
+                <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--color-gray-900)" }}>{r.title}</h2>
               </div>
-              <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--color-gray-900)" }}>{r.title}</h2>
             </Link>
           ))}
         </div>

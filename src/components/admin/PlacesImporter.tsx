@@ -3,28 +3,74 @@ import { useState, useTransition } from "react";
 import type { PlaceCandidate } from "@/lib/places/google-places";
 
 type Prefecture = { id: string; name: string; slug: string };
+type City = { id: string; name: string; prefecture_id: string };
 type ResultRow = PlaceCandidate & { alreadyImported: boolean; selected: boolean };
 
-export function PlacesImporter({ prefectures }: { prefectures: Prefecture[] }) {
+export function PlacesImporter({ prefectures, cities }: { prefectures: Prefecture[]; cities: City[] }) {
   const [prefectureId, setPrefectureId] = useState(prefectures[0]?.id ?? "");
-  const [prefSlug, setPrefSlug] = useState(prefectures[0]?.slug ?? "");
+  const citiesInPref = cities.filter((c) => c.prefecture_id === prefectureId);
+  const [cityId, setCityId] = useState("");
   const [query, setQuery] = useState("パーソナルジム");
   const [rows, setRows] = useState<ResultRow[]>([]);
-  const [nextPageToken, setNextPageToken] = useState<string | null>(null);
-  const [currentSearch, setCurrentSearch] = useState<{ query: string; prefSlug: string } | null>(null);
   const [searchError, setSearchError] = useState("");
   const [importResult, setImportResult] = useState<{ inserted: string[]; skipped: string[]; errors: string[] } | null>(null);
+  const [stationProgress, setStationProgress] = useState<{ done: number; total: number } | null>(null);
   const [isPending, startTransition] = useTransition();
 
   function onPrefChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const id = e.target.value;
-    const pref = prefectures.find((p) => p.id === id);
     setPrefectureId(id);
-    setPrefSlug(pref?.slug ?? "");
+    setCityId("");
     setRows([]);
-    setNextPageToken(null);
-    setCurrentSearch(null);
     setImportResult(null);
+  }
+
+  async function searchByStations() {
+    setSearchError("");
+    setImportResult(null);
+    setRows([]);
+
+    const stationsUrl = cityId
+      ? `/api/places/stations?cityId=${cityId}`
+      : `/api/places/stations?prefectureId=${prefectureId}`;
+    const stationsRes = await fetch(stationsUrl);
+    const stationsData = await stationsRes.json();
+    if (!stationsRes.ok) {
+      setSearchError(stationsData.error ?? "駅一覧の取得に失敗しました");
+      return;
+    }
+    const stations: { id: string; name: string; latitude: number; longitude: number }[] = stationsData.stations ?? [];
+    if (stations.length === 0) {
+      setSearchError("登録されている駅がありません");
+      return;
+    }
+
+    const aggregated = new Map<string, ResultRow>();
+    setStationProgress({ done: 0, total: stations.length });
+
+    for (let i = 0; i < stations.length; i++) {
+      const st = stations[i];
+      try {
+        const res = await fetch("/api/places/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query, lat: st.latitude, lng: st.longitude, radius: 1200 }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          for (const r of data.results ?? []) {
+            if (!aggregated.has(r.placeId)) {
+              aggregated.set(r.placeId, { ...r, selected: !r.alreadyImported });
+            }
+          }
+          setRows([...aggregated.values()]);
+        }
+      } catch {
+        // 1駅分の失敗はスキップして続行
+      }
+      setStationProgress({ done: i + 1, total: stations.length });
+    }
+    setStationProgress(null);
   }
 
   function toggleRow(placeId: string) {
@@ -41,63 +87,6 @@ export function PlacesImporter({ prefectures }: { prefectures: Prefecture[] }) {
     );
   }
 
-  async function doSearch(pageToken?: string) {
-    const searchQuery = pageToken ? (currentSearch?.query ?? query) : query;
-    const searchPrefSlug = pageToken ? (currentSearch?.prefSlug ?? prefSlug) : prefSlug;
-
-    const res = await fetch("/api/places/search", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query: searchQuery, prefSlug: searchPrefSlug, pageToken }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      setSearchError(data.error ?? "検索に失敗しました");
-      return;
-    }
-
-    const newRows: ResultRow[] = (data.results ?? []).map((r: any) => ({
-      ...r,
-      selected: !r.alreadyImported,
-    }));
-
-    if (pageToken) {
-      // 追加読み込み: 既存行に重複しないものだけ追記
-      const existingIds = new Set(rows.map((r) => r.placeId));
-      setRows((prev) => [...prev, ...newRows.filter((r) => !existingIds.has(r.placeId))]);
-    } else {
-      setRows(newRows);
-      setCurrentSearch({ query: searchQuery, prefSlug: searchPrefSlug });
-    }
-
-    setNextPageToken(data.nextPageToken ?? null);
-  }
-
-  function handleSearch() {
-    setSearchError("");
-    setImportResult(null);
-    setNextPageToken(null);
-    startTransition(async () => {
-      try {
-        await doSearch();
-      } catch {
-        setSearchError("ネットワークエラーが発生しました");
-      }
-    });
-  }
-
-  function handleLoadMore() {
-    if (!nextPageToken) return;
-    setSearchError("");
-    startTransition(async () => {
-      try {
-        await doSearch(nextPageToken);
-      } catch {
-        setSearchError("ネットワークエラーが発生しました");
-      }
-    });
-  }
-
   function handleImport() {
     const selected = rows.filter((r) => r.selected && !r.alreadyImported);
     if (!selected.length) return;
@@ -106,7 +95,7 @@ export function PlacesImporter({ prefectures }: { prefectures: Prefecture[] }) {
         const res = await fetch("/api/places/import", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ candidates: selected, prefectureId, query: currentSearch?.query ?? query }),
+          body: JSON.stringify({ candidates: selected, prefectureId, query }),
         });
         const data = await res.json();
         if (!res.ok) { setSearchError(data.error ?? "取込に失敗しました"); return; }
@@ -152,6 +141,23 @@ export function PlacesImporter({ prefectures }: { prefectures: Prefecture[] }) {
             </select>
           </div>
 
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+            <label style={{ fontSize: "0.8125rem", fontWeight: 600, color: "var(--color-gray-700)" }}>
+              市区町村
+            </label>
+            <select
+              value={cityId}
+              onChange={(e) => { setCityId(e.target.value); setRows([]); setImportResult(null); }}
+              className="form-input"
+              style={{ width: "220px" }}
+            >
+              <option value="">（都道府県全体・全市区町村の駅）</option>
+              {citiesInPref.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+
           <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem", flex: 1, minWidth: "220px" }}>
             <label style={{ fontSize: "0.8125rem", fontWeight: 600, color: "var(--color-gray-700)" }}>
               検索キーワード
@@ -160,21 +166,24 @@ export function PlacesImporter({ prefectures }: { prefectures: Prefecture[] }) {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              placeholder="例: パーソナルジム 名古屋"
+              placeholder="例: パーソナルジム"
               className="form-input"
             />
           </div>
 
           <button
-            onClick={handleSearch}
-            disabled={isPending || !query.trim()}
+            onClick={() => startTransition(searchByStations)}
+            disabled={isPending || !query.trim() || !prefectureId}
             className="btn btn-primary"
             style={{ whiteSpace: "nowrap" }}
           >
-            {isPending && rows.length === 0 ? "検索中..." : "Places 検索"}
+            {stationProgress ? `検索中 (${stationProgress.done}/${stationProgress.total}駅)` : "駅ごとに検索"}
           </button>
         </div>
+
+        <p style={{ marginTop: "0.5rem", fontSize: "0.75rem", color: "var(--color-gray-500)" }}>
+          選択した市区町村（または都道府県全体）の登録済み駅すべてについて、駅周辺1.2km圏内をそれぞれ検索し、重複を除いて結果を集約します。Google Places検索は1回あたり最大60件までの制限がありますが、駅単位に分割することでこの上限を回避し、件数を増やせます。駅数が多いほど時間がかかります（都道府県全体の場合は数分かかることがあります）。
+        </p>
 
         {searchError && (
           <p style={{ marginTop: "0.75rem", fontSize: "0.875rem", color: "var(--color-error)" }}>
@@ -306,24 +315,6 @@ export function PlacesImporter({ prefectures }: { prefectures: Prefecture[] }) {
               </tbody>
             </table>
           </div>
-
-          {/* 次のページ読み込みボタン */}
-          {nextPageToken && (
-            <div style={{ textAlign: "center", marginTop: "0.875rem" }}>
-              <button
-                onClick={handleLoadMore}
-                disabled={isPending}
-                className="btn btn-sm"
-                style={{
-                  backgroundColor: "var(--color-white)",
-                  border: "1px solid var(--color-gray-300)",
-                  color: "var(--color-gray-700)",
-                }}
-              >
-                {isPending ? "読み込み中..." : "次の20件を読み込む"}
-              </button>
-            </div>
-          )}
         </>
       )}
 
@@ -339,7 +330,7 @@ export function PlacesImporter({ prefectures }: { prefectures: Prefecture[] }) {
             fontSize: "0.875rem",
           }}
         >
-          都道府県とキーワードを指定して「Places 検索」を実行してください。
+          都道府県とキーワードを指定して「駅ごとに検索」を実行してください。
         </div>
       )}
     </div>

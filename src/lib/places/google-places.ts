@@ -24,7 +24,8 @@ const PREF_CENTERS: Record<string, { lat: number; lng: number }> = {
 export async function searchPlaces(
   query: string,
   prefSlug?: string,
-  pageToken?: string
+  pageToken?: string,
+  customCenter?: { lat: number; lng: number; radius: number }
 ): Promise<{ candidates: PlaceCandidate[]; nextPageToken: string | null }> {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!apiKey) throw new Error("GOOGLE_MAPS_API_KEY が設定されていません");
@@ -36,18 +37,19 @@ export async function searchPlaces(
     maxResultCount: 20,
   };
 
+  // ページングリクエストはGoogle側の仕様で、初回リクエストと同じパラメータを
+  // 送る必要があるため、pageTokenの有無に関わらずlocationBiasは常に付与する
+  const center = customCenter ?? (prefSlug ? { ...PREF_CENTERS[prefSlug], radius: 50000 } : null);
+  if (center) {
+    body.locationBias = {
+      circle: {
+        center: { latitude: center.lat, longitude: center.lng },
+        radius: center.radius,
+      },
+    };
+  }
   if (pageToken) {
     body.pageToken = pageToken;
-  } else {
-    const center = prefSlug ? PREF_CENTERS[prefSlug] : null;
-    if (center) {
-      body.locationBias = {
-        circle: {
-          center: { latitude: center.lat, longitude: center.lng },
-          radius: 50000,
-        },
-      };
-    }
   }
 
   const res = await fetch(`${PLACES_BASE}/places:searchText`, {

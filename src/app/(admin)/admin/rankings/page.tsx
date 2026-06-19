@@ -1,16 +1,28 @@
 import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { ConfirmForm } from "@/components/admin/ConfirmForm";
+import { RankingAiFillRunner } from "@/components/admin/RankingAiFillRunner";
+import { AreaRankingGenerator } from "@/components/admin/AreaRankingGenerator";
+import { bulkGenerateCityRankings } from "@/lib/actions/rankings";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "ランキング管理 | FitBase CMS" };
 
 export default async function RankingsListPage() {
   const supabase = createAdminClient();
-  const { data: rankings, count } = await supabase
-    .from("rankings")
-    .select("id, title, slug, category, status, updated_at, prefectures(name), cities(name)", { count: "exact" })
-    .order("updated_at", { ascending: false });
+  const [{ data: rankings, count }, { data: prefectures }, { data: cities }] = await Promise.all([
+    supabase
+      .from("rankings")
+      .select("id, title, slug, category, status, body_md, updated_at, prefectures(name), cities(name)", { count: "exact" })
+      .order("updated_at", { ascending: false }),
+    supabase.from("prefectures").select("id, name").order("sort_order"),
+    supabase.from("cities").select("id, name, prefecture_id").order("sort_order"),
+  ]);
+
+  const aiFillTargets = (rankings ?? [])
+    .filter((r: any) => r.status === "draft")
+    .map((r: any) => ({ id: r.id, title: r.title, body_md: r.body_md }));
 
   return (
     <div>
@@ -22,6 +34,29 @@ export default async function RankingsListPage() {
           + 新規作成
         </Link>
       </div>
+
+      <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1.5rem" }}>
+        <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "0.25rem" }}>都市ごとに自動生成</h2>
+        <p style={{ fontSize: "0.8125rem", color: "var(--color-gray-500)", marginBottom: "0.75rem" }}>
+          公開ジムが指定件数以上ある都市（まだランキングが無い都市のみ）について、評価70%＋価格30%のスコア順に「○○市のパーソナルジムおすすめランキング」を下書き状態で自動生成します。内容を確認してから公開してください。
+        </p>
+        <ConfirmForm
+          action={bulkGenerateCityRankings}
+          message="ランキングが無い都市について、下書き状態のランキングを一括生成します。よろしいですか？"
+          label="自動生成を実行"
+          buttonClassName="btn btn-primary btn-sm"
+        >
+          <label className="form-label" htmlFor="min_gyms" style={{ marginBottom: 0 }}>対象都市の最低ジム数</label>
+          <input id="min_gyms" name="min_gyms" type="number" min="1" defaultValue={10} className="form-input" style={{ width: "70px" }} />
+          <label className="form-label" htmlFor="limit" style={{ marginBottom: 0 }}>掲載上位</label>
+          <input id="limit" name="limit" type="number" min="1" max="50" defaultValue={10} className="form-input" style={{ width: "70px" }} />
+          <span style={{ fontSize: "0.8125rem", color: "var(--color-gray-500)" }}>件</span>
+        </ConfirmForm>
+      </div>
+
+      <AreaRankingGenerator prefectures={prefectures ?? []} cities={cities ?? []} />
+
+      <RankingAiFillRunner rankings={aiFillTargets} />
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", overflow: "hidden" }}>
         <table className="data-table">

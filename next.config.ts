@@ -25,7 +25,10 @@ const nextConfig: NextConfig = {
   },
   // On-Demand ISR のエンドポイントを Route Handler で実装
   experimental: {
-    // サーバーアクション有効化（デフォルト on だが明示）
+    serverActions: {
+      // 画像アップロード（最大5MB）がデフォルト1MB制限に収まるよう拡張
+      bodySizeLimit: "6mb",
+    },
   },
 };
 

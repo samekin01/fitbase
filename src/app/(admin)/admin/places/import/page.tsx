@@ -5,10 +5,10 @@ export const metadata = { title: "Google Places 取込 | FitBase CMS" };
 
 export default async function PlacesImportPage() {
   const supabase = createAdminClient();
-  const { data: prefectures } = await supabase
-    .from("prefectures")
-    .select("id, name, slug")
-    .order("sort_order");
+  const [{ data: prefectures }, { data: cities }] = await Promise.all([
+    supabase.from("prefectures").select("id, name, slug").order("sort_order"),
+    supabase.from("cities").select("id, name, prefecture_id").order("sort_order"),
+  ]);
 
   return (
     <div>
@@ -21,7 +21,7 @@ export default async function PlacesImportPage() {
         </p>
       </div>
 
-      <PlacesImporter prefectures={prefectures ?? []} />
+      <PlacesImporter prefectures={prefectures ?? []} cities={cities ?? []} />
     </div>
   );
 }

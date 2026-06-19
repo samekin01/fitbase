@@ -190,6 +190,8 @@ export type Ranking = {
   station_id: string | null;
   category: string | null;
   body_md: string | null;
+  closing_md: string | null;
+  eyecatch_image_url: string | null;
   seo_title: string | null;
   meta_description: string | null;
   status: ContentStatus;
