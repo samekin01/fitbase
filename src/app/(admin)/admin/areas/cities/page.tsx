@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createCity, bulkInsertCities } from "@/lib/actions/cities";
 import { PRESET_CITIES } from "@/lib/city-presets";
+import { BuildingOfficeIcon } from "@/components/ui/Icons";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "市区町村管理 | FitBase CMS" };
@@ -27,7 +28,8 @@ export default async function CitiesPage() {
 
   return (
     <div style={{ maxWidth: "900px" }}>
-      <h1 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "1.5rem", color: "var(--color-gray-900)" }}>
+      <h1 style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "1.25rem", fontWeight: 700, marginBottom: "1.5rem", color: "var(--color-gray-900)" }}>
+        <BuildingOfficeIcon size={20} />
         市区町村
       </h1>
 
@@ -51,7 +53,17 @@ export default async function CitiesPage() {
                   backgroundColor: "var(--color-white)",
                 }}
               >
-                <p style={{ fontWeight: 700, fontSize: "0.9375rem", marginBottom: "0.25rem" }}>{pref.name}</p>
+                <p style={{ fontWeight: 700, fontSize: "0.9375rem", marginBottom: "0.375rem" }}>{pref.name}</p>
+                <div style={{ height: "5px", borderRadius: "3px", backgroundColor: "var(--color-gray-100)", marginBottom: "0.375rem", overflow: "hidden" }}>
+                  <div
+                    style={{
+                      height: "100%",
+                      width: preset.length > 0 ? `${(registered.size / preset.length) * 100}%` : "0%",
+                      backgroundColor: remaining > 0 ? "var(--color-warning)" : "var(--color-success)",
+                      borderRadius: "3px",
+                    }}
+                  />
+                </div>
                 <p style={{ fontSize: "0.8125rem", color: "var(--color-gray-500)", marginBottom: "0.75rem" }}>
                   {registered.size}/{preset.length}件登録済
                   {remaining > 0 && (
@@ -148,17 +160,18 @@ export default async function CitiesPage() {
               {cities?.map((city: any) => (
                 <tr key={city.id}>
                   <td style={{ fontWeight: 600 }}>{city.name}</td>
-                  <td style={{ color: "var(--color-gray-500)", fontFamily: "monospace" }}>{city.slug}</td>
-                  <td>{city.prefectures?.name ?? "—"}</td>
-                  <td>{city.sort_order}</td>
+                  <td><span className="tag-pill" style={{ fontFamily: "monospace" }}>{city.slug}</span></td>
+                  <td style={{ fontSize: "0.8125rem" }}>{city.prefectures?.name ?? "—"}</td>
+                  <td style={{ color: "var(--color-gray-500)", fontSize: "0.8125rem" }}>{city.sort_order}</td>
                 </tr>
               ))}
             </tbody>
           </table>
           {(!cities || cities.length === 0) && (
-            <p style={{ color: "var(--color-gray-500)", fontSize: "0.875rem", padding: "1rem" }}>
+            <div className="empty-state">
+              <BuildingOfficeIcon size={32} />
               市区町村データがありません。
-            </p>
+            </div>
           )}
         </div>
       </section>

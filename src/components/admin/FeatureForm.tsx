@@ -3,6 +3,8 @@
 import { useActionState } from "react";
 import type { Feature, Prefecture, City, Station } from "@/types/tables";
 import { Field } from "@/components/admin/fields";
+import { SeoFieldGroup } from "@/components/admin/SeoFieldGroup";
+import { TagIcon, MapPinIcon, DocumentTextIcon, SearchIcon } from "@/components/ui/Icons";
 
 type Props = {
   feature?: Partial<Feature>;
@@ -40,7 +42,9 @@ export function FeatureForm({ feature, prefectures, cities, stations, action, su
       )}
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1rem" }}>
-        <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>基本情報</h2>
+        <h2 style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>
+          <TagIcon size={16} />基本情報
+        </h2>
         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
           <Field label="タイトル" required>
             <input name="title" type="text" required defaultValue={feature?.title} className="form-input" />
@@ -65,7 +69,9 @@ export function FeatureForm({ feature, prefectures, cities, stations, action, su
       </div>
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1rem" }}>
-        <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>対象エリア（任意）</h2>
+        <h2 style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>
+          <MapPinIcon size={16} />対象エリア（任意）
+        </h2>
         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
           <Field label="都道府県">
             <select name="prefecture_id" defaultValue={feature?.prefecture_id ?? ""} className="form-input">
@@ -95,7 +101,9 @@ export function FeatureForm({ feature, prefectures, cities, stations, action, su
       </div>
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1rem" }}>
-        <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>本文（Markdown）</h2>
+        <h2 style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>
+          <DocumentTextIcon size={16} />本文（Markdown）
+        </h2>
         <textarea name="body_md" rows={14} defaultValue={feature?.body_md ?? ""} className="form-input" style={{ resize: "vertical", fontFamily: "monospace", fontSize: "0.8125rem" }} />
       </div>
 
@@ -129,15 +137,14 @@ export function FeatureForm({ feature, prefectures, cities, stations, action, su
       </div>
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1rem" }}>
-        <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>SEO</h2>
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-          <Field label="SEOタイトル">
-            <input name="seo_title" type="text" defaultValue={feature?.seo_title ?? ""} className="form-input" />
-          </Field>
-          <Field label="メタディスクリプション">
-            <textarea name="meta_description" rows={2} defaultValue={feature?.meta_description ?? ""} className="form-input" style={{ resize: "vertical" }} />
-          </Field>
-        </div>
+        <h2 style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>
+          <SearchIcon size={16} />SEO
+        </h2>
+        <SeoFieldGroup
+          defaultSeoTitle={feature?.seo_title}
+          defaultMetaDescription={feature?.meta_description}
+          showNoindex={false}
+        />
       </div>
 
       <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>

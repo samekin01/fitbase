@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { GymStatusSelect } from "@/components/admin/GymStatusSelect";
 import { ConfirmForm } from "@/components/admin/ConfirmForm";
 import { deleteGym, updateGymStatus } from "@/lib/actions/gyms";
+import { BuildingOfficeIcon } from "@/components/ui/Icons";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "ジム一覧 | FitBase CMS" };
@@ -54,18 +55,40 @@ export default async function GymsListPage({
   if (status) query = query.eq("status", status);
   if (q) query = query.ilike("name", `%${q}%`);
 
-  const { data: gyms, count } = await query;
+  const [{ data: gyms, count }, { count: publishedCount }, { count: draftCount }, { count: hiddenCount }] = await Promise.all([
+    query,
+    supabase.from("gyms").select("*", { count: "exact", head: true }).eq("status", "published"),
+    supabase.from("gyms").select("*", { count: "exact", head: true }).eq("status", "draft"),
+    supabase.from("gyms").select("*", { count: "exact", head: true }).eq("status", "hidden"),
+  ]);
   const totalPages = Math.ceil((count ?? 0) / perPage);
 
   return (
     <div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
-        <h1 style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--color-gray-900)" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.875rem" }}>
+        <h1 style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "1.25rem", fontWeight: 700, color: "var(--color-gray-900)" }}>
+          <BuildingOfficeIcon size={20} />
           ジム一覧 <span style={{ fontSize: "0.875rem", fontWeight: 400, color: "var(--color-gray-500)" }}>（{count ?? 0}件）</span>
         </h1>
         <Link href="/admin/gyms/new" className="btn btn-primary btn-sm">
           + 新規登録
         </Link>
+      </div>
+
+      {/* ステータス別件数 */}
+      <div className="count-chip-row">
+        <a href="/admin/gyms" className={`count-chip${!status ? " count-chip--active" : ""}`}>
+          すべて <strong>{(publishedCount ?? 0) + (draftCount ?? 0) + (hiddenCount ?? 0)}</strong>
+        </a>
+        <a href="/admin/gyms?status=published" className={`count-chip${status === "published" ? " count-chip--active" : ""}`}>
+          公開中 <strong style={{ color: "var(--color-success)" }}>{publishedCount ?? 0}</strong>
+        </a>
+        <a href="/admin/gyms?status=draft" className={`count-chip${status === "draft" ? " count-chip--active" : ""}`}>
+          下書き <strong style={{ color: "var(--color-warning)" }}>{draftCount ?? 0}</strong>
+        </a>
+        <a href="/admin/gyms?status=hidden" className={`count-chip${status === "hidden" ? " count-chip--active" : ""}`}>
+          非公開 <strong>{hiddenCount ?? 0}</strong>
+        </a>
       </div>
 
       {/* フィルター */}
@@ -116,7 +139,7 @@ export default async function GymsListPage({
                   <td style={{ fontSize: "0.8125rem" }}>{(gym.prefectures as any)?.name ?? "—"}</td>
                   <td style={{ fontSize: "0.8125rem" }}>{(gym.cities as any)?.name ?? "—"}</td>
                   <td><GymStatusSelect key={gym.status} gymId={gym.id} currentStatus={gym.status} /></td>
-                  <td style={{ fontSize: "0.75rem", color: "var(--color-gray-500)" }}>{gym.source}</td>
+                  <td><span className="tag-pill">{gym.source}</span></td>
                   <td style={{ fontSize: "0.75rem", color: "var(--color-gray-500)" }}>
                     {new Date(gym.updated_at).toLocaleDateString("ja-JP")}
                   </td>
@@ -143,8 +166,11 @@ export default async function GymsListPage({
               ))
             ) : (
               <tr>
-                <td colSpan={7} style={{ textAlign: "center", color: "var(--color-gray-500)", padding: "2rem" }}>
-                  ジムが見つかりません
+                <td colSpan={7}>
+                  <div className="empty-state">
+                    <BuildingOfficeIcon size={32} />
+                    ジムが見つかりません
+                  </div>
                 </td>
               </tr>
             )}

@@ -3,6 +3,8 @@
 import { useActionState } from "react";
 import type { Ranking, Prefecture, City, Station } from "@/types/tables";
 import { Field } from "@/components/admin/fields";
+import { SeoFieldGroup } from "@/components/admin/SeoFieldGroup";
+import { TrophyIcon, MapPinIcon, DocumentTextIcon, SearchIcon } from "@/components/ui/Icons";
 
 type Props = {
   ranking?: Partial<Ranking>;
@@ -36,7 +38,9 @@ export function RankingForm({ ranking, prefectures, cities, stations, action, su
       )}
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1rem" }}>
-        <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>基本情報</h2>
+        <h2 style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>
+          <TrophyIcon size={16} />基本情報
+        </h2>
         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
           <Field label="タイトル" required>
             <input name="title" type="text" required defaultValue={ranking?.title} className="form-input" placeholder="例: 名古屋市のパーソナルジムおすすめランキング" />
@@ -64,7 +68,9 @@ export function RankingForm({ ranking, prefectures, cities, stations, action, su
       </div>
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1rem" }}>
-        <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>対象エリア（任意）</h2>
+        <h2 style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>
+          <MapPinIcon size={16} />対象エリア（任意）
+        </h2>
         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
           <Field label="都道府県">
             <select name="prefecture_id" defaultValue={ranking?.prefecture_id ?? ""} className="form-input">
@@ -94,7 +100,9 @@ export function RankingForm({ ranking, prefectures, cities, stations, action, su
       </div>
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1rem" }}>
-        <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "0.25rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>導入文（Markdown）</h2>
+        <h2 style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9375rem", fontWeight: 700, marginBottom: "0.25rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>
+          <DocumentTextIcon size={16} />導入文（Markdown）
+        </h2>
         <p style={{ fontSize: "0.8125rem", color: "var(--color-gray-500)", margin: "0.5rem 0" }}>
           ランキング本文の先頭に表示される導入文です。各ジムの紹介文は「ランクイン管理」画面で順位ごとに編集します。
         </p>
@@ -102,7 +110,9 @@ export function RankingForm({ ranking, prefectures, cities, stations, action, su
       </div>
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1rem" }}>
-        <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "0.25rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>クロージング文（Markdown）</h2>
+        <h2 style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9375rem", fontWeight: 700, marginBottom: "0.25rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>
+          <DocumentTextIcon size={16} />クロージング文（Markdown）
+        </h2>
         <p style={{ fontSize: "0.8125rem", color: "var(--color-gray-500)", margin: "0.5rem 0" }}>
           ランキング本文の最後（ジム紹介の後）に表示されます。
         </p>
@@ -110,15 +120,14 @@ export function RankingForm({ ranking, prefectures, cities, stations, action, su
       </div>
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1rem" }}>
-        <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>SEO</h2>
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-          <Field label="SEOタイトル">
-            <input name="seo_title" type="text" defaultValue={ranking?.seo_title ?? ""} className="form-input" />
-          </Field>
-          <Field label="メタディスクリプション">
-            <textarea name="meta_description" rows={2} defaultValue={ranking?.meta_description ?? ""} className="form-input" style={{ resize: "vertical" }} />
-          </Field>
-        </div>
+        <h2 style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>
+          <SearchIcon size={16} />SEO
+        </h2>
+        <SeoFieldGroup
+          defaultSeoTitle={ranking?.seo_title}
+          defaultMetaDescription={ranking?.meta_description}
+          showNoindex={false}
+        />
       </div>
 
       <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>

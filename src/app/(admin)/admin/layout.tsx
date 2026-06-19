@@ -102,6 +102,7 @@ export default async function AdminLayout({
       links: [
         { label: "SEO管理", href: "/admin/seo" },
         { label: "アナリティクス", href: "/admin/analytics" },
+        { label: "ヒートマップ", href: "/admin/heatmap" },
       ],
     },
   ];

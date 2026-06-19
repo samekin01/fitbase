@@ -3,6 +3,8 @@
 import { useActionState } from "react";
 import type { Gym, Prefecture, City, Station, Tag } from "@/types/tables";
 import { Field, CheckField } from "@/components/admin/fields";
+import { SeoFieldGroup } from "@/components/admin/SeoFieldGroup";
+import { BuildingOfficeIcon, MapPinIcon, PhoneIcon, CurrencyYenIcon, StarIcon, TagIcon as TagIconUi, DocumentTextIcon, SearchIcon } from "@/components/ui/Icons";
 
 type Props = {
   gym?: Partial<Gym>;
@@ -45,7 +47,9 @@ export function GymForm({ gym, prefectures, cities, stations, allTags, assignedT
       )}
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1rem" }}>
-        <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>基本情報</h2>
+        <h2 style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>
+          <BuildingOfficeIcon size={16} />基本情報
+        </h2>
         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
           <Field label="ジム名" required>
             <input name="name" type="text" required defaultValue={gym?.name} className="form-input" />
@@ -72,7 +76,9 @@ export function GymForm({ gym, prefectures, cities, stations, allTags, assignedT
       </div>
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1rem" }}>
-        <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>所在地</h2>
+        <h2 style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>
+          <MapPinIcon size={16} />所在地
+        </h2>
         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
           <Field label="都道府県">
             <select name="prefecture_id" defaultValue={gym?.prefecture_id ?? ""} className="form-input">
@@ -114,7 +120,9 @@ export function GymForm({ gym, prefectures, cities, stations, allTags, assignedT
       </div>
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1rem" }}>
-        <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>連絡先・リンク</h2>
+        <h2 style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>
+          <PhoneIcon size={16} />連絡先・リンク
+        </h2>
         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
           <Field label="電話番号">
             <input name="phone" type="tel" defaultValue={gym?.phone ?? ""} className="form-input" />
@@ -132,7 +140,9 @@ export function GymForm({ gym, prefectures, cities, stations, allTags, assignedT
       </div>
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1rem" }}>
-        <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>料金・体験</h2>
+        <h2 style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>
+          <CurrencyYenIcon size={16} />料金・体験
+        </h2>
         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
           <Field label="入会金（円）">
             <input name="admission_fee" type="number" defaultValue={gym?.admission_fee ?? ""} className="form-input" />
@@ -147,7 +157,9 @@ export function GymForm({ gym, prefectures, cities, stations, allTags, assignedT
       </div>
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1rem" }}>
-        <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>特徴・絞り込み条件</h2>
+        <h2 style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>
+          <StarIcon size={16} />特徴・絞り込み条件
+        </h2>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
           <CheckField name="is_female_friendly" label="女性向け" defaultChecked={gym?.is_female_friendly} />
           <CheckField name="has_private_room" label="完全個室" defaultChecked={gym?.has_private_room} />
@@ -158,10 +170,25 @@ export function GymForm({ gym, prefectures, cities, stations, allTags, assignedT
       </div>
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1rem" }}>
-        <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>タグ</h2>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
+        <h2 style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>
+          <TagIconUi size={16} />タグ
+        </h2>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
           {allTags.map((tag) => (
-            <label key={tag.id} style={{ display: "inline-flex", alignItems: "center", gap: "0.375rem", fontSize: "0.875rem", cursor: "pointer" }}>
+            <label
+              key={tag.id}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.375rem",
+                fontSize: "0.8125rem",
+                cursor: "pointer",
+                padding: "0.3125rem 0.75rem",
+                borderRadius: "999px",
+                border: "1px solid var(--color-gray-200)",
+                backgroundColor: assignedTagIds.includes(tag.id) ? "#EFF6FF" : "var(--color-white)",
+              }}
+            >
               <input
                 type="checkbox"
                 name="tag_ids"
@@ -175,7 +202,9 @@ export function GymForm({ gym, prefectures, cities, stations, allTags, assignedT
       </div>
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1rem" }}>
-        <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>店舗説明</h2>
+        <h2 style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>
+          <DocumentTextIcon size={16} />店舗説明
+        </h2>
         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
           <Field label="店舗説明">
             <textarea name="description" rows={5} defaultValue={gym?.description ?? ""} className="form-input" style={{ resize: "vertical" }} />
@@ -196,18 +225,14 @@ export function GymForm({ gym, prefectures, cities, stations, allTags, assignedT
       </div>
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1rem" }}>
-        <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>SEO</h2>
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-          <Field label="SEOタイトル">
-            <input name="seo_title" type="text" defaultValue={gym?.seo_title ?? ""} className="form-input" />
-          </Field>
-          <Field label="メタディスクリプション">
-            <textarea name="meta_description" rows={2} defaultValue={gym?.meta_description ?? ""} className="form-input" style={{ resize: "vertical" }} />
-          </Field>
-          <Field label="noindex">
-            <CheckField name="noindex" label="検索エンジンにインデックスさせない" defaultChecked={gym?.noindex} />
-          </Field>
-        </div>
+        <h2 style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>
+          <SearchIcon size={16} />SEO
+        </h2>
+        <SeoFieldGroup
+          defaultSeoTitle={gym?.seo_title}
+          defaultMetaDescription={gym?.meta_description}
+          defaultNoindex={gym?.noindex}
+        />
       </div>
 
       <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { UsersIcon, ClipboardListIcon as UpdateIcon, InboxIcon, ChevronRightIcon } from "@/components/ui/Icons";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "申請・問い合わせ | FitBase CMS" };
@@ -20,51 +21,82 @@ export default async function RequestsPage() {
   ]);
 
   const items = [
-    { label: "掲載管理申請", count: pendingClaims ?? 0, href: "/admin/requests/claims" },
-    { label: "情報修正依頼", count: pendingUpdates ?? 0, href: "/admin/requests/updates" },
-    { label: "掲載削除依頼", count: pendingDeletes ?? 0, href: "/admin/requests/deletes" },
-    { label: "お問い合わせ", count: unreadContacts ?? 0, href: "/admin/requests/contacts" },
+    {
+      label: "掲載管理申請",
+      description: "事業者からのジム掲載・管理権限の申請",
+      count: pendingClaims ?? 0,
+      href: "/admin/requests/claims",
+      icon: UsersIcon,
+    },
+    {
+      label: "情報修正依頼",
+      description: "掲載情報の修正・変更リクエスト",
+      count: pendingUpdates ?? 0,
+      href: "/admin/requests/updates",
+      icon: UpdateIcon,
+    },
+    {
+      label: "掲載削除依頼",
+      description: "掲載の取り下げ・削除リクエスト",
+      count: pendingDeletes ?? 0,
+      href: "/admin/requests/deletes",
+      icon: InboxIcon,
+    },
+    {
+      label: "お問い合わせ",
+      description: "サイト経由で届いた一般のお問い合わせ",
+      count: unreadContacts ?? 0,
+      href: "/admin/requests/contacts",
+      icon: InboxIcon,
+    },
   ];
 
+  const totalPending = items.reduce((sum, item) => sum + item.count, 0);
+
   return (
-    <div style={{ maxWidth: "600px" }}>
-      <h1 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "1.5rem", color: "var(--color-gray-900)" }}>
+    <div style={{ maxWidth: "640px" }}>
+      <h1 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "0.375rem", color: "var(--color-gray-900)" }}>
         申請・問い合わせ
       </h1>
+      <p style={{ fontSize: "0.8125rem", color: "var(--color-gray-500)", marginBottom: "1.5rem" }}>
+        {totalPending > 0 ? `現在 ${totalPending}件の未対応があります。` : "未対応の申請・問い合わせはありません。"}
+      </p>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.625rem" }}>
         {items.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              backgroundColor: "var(--color-white)",
-              border: "1px solid var(--color-gray-200)",
-              borderRadius: "var(--radius-md)",
-              padding: "0.875rem 1rem",
-              textDecoration: "none",
-              color: "var(--color-gray-900)",
-            }}
+            className="card card-hover"
+            style={{ display: "flex", alignItems: "center", gap: "0.875rem", padding: "1rem 1.125rem", textDecoration: "none" }}
           >
-            <span style={{ fontWeight: 500 }}>{item.label}</span>
-            {item.count > 0 && (
-              <span
-                className="badge"
-                style={{
-                  backgroundColor: "#fef2f2",
-                  color: "#b91c1c",
-                  border: "1px solid #fecaca",
-                }}
-              >
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "2.75rem",
+                height: "2.75rem",
+                borderRadius: "var(--radius-md)",
+                backgroundColor: item.count > 0 ? "#FEE2E2" : "var(--color-gray-100)",
+                color: item.count > 0 ? "var(--color-error)" : "var(--color-gray-700)",
+                flexShrink: 0,
+              }}
+            >
+              <item.icon size={22} />
+            </span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontWeight: 700, color: "var(--color-gray-900)", marginBottom: "0.125rem" }}>{item.label}</p>
+              <p style={{ fontSize: "0.8125rem", color: "var(--color-gray-500)" }}>{item.description}</p>
+            </div>
+            {item.count > 0 ? (
+              <span className="badge badge-red" style={{ flexShrink: 0 }}>
                 未対応 {item.count}件
               </span>
+            ) : (
+              <span style={{ fontSize: "0.8125rem", color: "var(--color-gray-400)", flexShrink: 0 }}>なし</span>
             )}
-            {item.count === 0 && (
-              <span style={{ fontSize: "0.8125rem", color: "var(--color-gray-400)" }}>なし</span>
-            )}
+            <ChevronRightIcon size={16} style={{ color: "var(--color-gray-400)", flexShrink: 0 }} />
           </Link>
         ))}
       </div>

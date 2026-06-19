@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createPrefecture } from "@/lib/actions/prefectures";
+import { MapPinIcon } from "@/components/ui/Icons";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "都道府県管理 | FitBase CMS" };
@@ -13,7 +14,8 @@ export default async function PrefecturesPage() {
 
   return (
     <div style={{ maxWidth: "700px" }}>
-      <h1 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "1.5rem", color: "var(--color-gray-900)" }}>
+      <h1 style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "1.25rem", fontWeight: 700, marginBottom: "1.5rem", color: "var(--color-gray-900)" }}>
+        <MapPinIcon size={20} />
         都道府県
       </h1>
 
@@ -76,16 +78,17 @@ export default async function PrefecturesPage() {
               {prefectures?.map((pref: any) => (
                 <tr key={pref.id}>
                   <td style={{ fontWeight: 600 }}>{pref.name}</td>
-                  <td style={{ color: "var(--color-gray-500)", fontFamily: "monospace" }}>{pref.slug}</td>
-                  <td>{pref.sort_order}</td>
+                  <td><span className="tag-pill" style={{ fontFamily: "monospace" }}>{pref.slug}</span></td>
+                  <td style={{ color: "var(--color-gray-500)", fontSize: "0.8125rem" }}>{pref.sort_order}</td>
                 </tr>
               ))}
             </tbody>
           </table>
           {(!prefectures || prefectures.length === 0) && (
-            <p style={{ color: "var(--color-gray-500)", fontSize: "0.875rem", padding: "1rem" }}>
+            <div className="empty-state">
+              <MapPinIcon size={32} />
               都道府県データがありません。
-            </p>
+            </div>
           )}
         </div>
       </section>

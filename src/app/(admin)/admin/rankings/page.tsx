@@ -5,6 +5,7 @@ import { ConfirmForm } from "@/components/admin/ConfirmForm";
 import { RankingAiFillRunner } from "@/components/admin/RankingAiFillRunner";
 import { AreaRankingGenerator } from "@/components/admin/AreaRankingGenerator";
 import { bulkGenerateCityRankings } from "@/lib/actions/rankings";
+import { TrophyIcon } from "@/components/ui/Icons";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "ランキング管理 | FitBase CMS" };
@@ -24,15 +25,24 @@ export default async function RankingsListPage() {
     .filter((r: any) => r.status === "draft")
     .map((r: any) => ({ id: r.id, title: r.title, body_md: r.body_md }));
 
+  const publishedCount = (rankings ?? []).filter((r: any) => r.status === "published").length;
+  const draftCount = (rankings ?? []).filter((r: any) => r.status === "draft").length;
+
   return (
     <div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
-        <h1 style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--color-gray-900)" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.875rem" }}>
+        <h1 style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "1.25rem", fontWeight: 700, color: "var(--color-gray-900)" }}>
+          <TrophyIcon size={20} />
           ランキング管理 <span style={{ fontSize: "0.875rem", fontWeight: 400, color: "var(--color-gray-500)" }}>（{count ?? 0}件）</span>
         </h1>
         <Link href="/admin/rankings/new" className="btn btn-primary btn-sm">
           + 新規作成
         </Link>
+      </div>
+
+      <div className="count-chip-row">
+        <span className="count-chip">公開中 <strong style={{ color: "var(--color-success)" }}>{publishedCount}</strong></span>
+        <span className="count-chip">下書き <strong style={{ color: "var(--color-warning)" }}>{draftCount}</strong></span>
       </div>
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1.5rem" }}>
@@ -81,7 +91,7 @@ export default async function RankingsListPage() {
                     <div style={{ fontSize: "0.75rem", color: "var(--color-gray-400)" }}>{r.slug}</div>
                   </td>
                   <td style={{ fontSize: "0.8125rem" }}>{r.cities?.name ?? r.prefectures?.name ?? "—"}</td>
-                  <td style={{ fontSize: "0.8125rem" }}>{r.category ?? "—"}</td>
+                  <td>{r.category ? <span className="tag-pill">{r.category}</span> : "—"}</td>
                   <td><StatusBadge status={r.status} /></td>
                   <td style={{ fontSize: "0.75rem", color: "var(--color-gray-500)" }}>
                     {new Date(r.updated_at).toLocaleDateString("ja-JP")}
@@ -94,8 +104,11 @@ export default async function RankingsListPage() {
               ))
             ) : (
               <tr>
-                <td colSpan={6} style={{ textAlign: "center", color: "var(--color-gray-500)", padding: "2rem" }}>
-                  ランキングが見つかりません
+                <td colSpan={6}>
+                  <div className="empty-state">
+                    <TrophyIcon size={32} />
+                    ランキングが見つかりません
+                  </div>
                 </td>
               </tr>
             )}

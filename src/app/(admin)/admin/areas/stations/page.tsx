@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createStation, deleteStation } from "@/lib/actions/stations";
 import { ConfirmForm } from "@/components/admin/ConfirmForm";
 import { fetchAllRows } from "@/lib/supabase/paginate";
+import { TrainIcon } from "@/components/ui/Icons";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "駅管理 | FitBase CMS" };
@@ -27,7 +28,8 @@ export default async function StationsPage() {
   return (
     <div style={{ maxWidth: "960px" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.5rem" }}>
-        <h1 style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--color-gray-900)" }}>
+        <h1 style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "1.25rem", fontWeight: 700, color: "var(--color-gray-900)" }}>
+          <TrainIcon size={20} />
           駅マスタ
         </h1>
         <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -123,8 +125,8 @@ export default async function StationsPage() {
               {stations.map((st: any) => (
                 <tr key={st.id}>
                   <td style={{ fontWeight: 600 }}>{st.name}</td>
-                  <td style={{ color: "var(--color-gray-500)", fontFamily: "monospace", fontSize: "0.8125rem" }}>{st.slug}</td>
-                  <td style={{ fontSize: "0.875rem" }}>
+                  <td><span className="tag-pill" style={{ fontFamily: "monospace" }}>{st.slug}</span></td>
+                  <td style={{ fontSize: "0.8125rem" }}>
                     {st.cities?.prefectures?.name} / {st.cities?.name ?? "—"}
                   </td>
                   <td style={{ fontSize: "0.8125rem", color: "var(--color-gray-500)" }}>
@@ -147,9 +149,10 @@ export default async function StationsPage() {
             </tbody>
           </table>
           {stations.length === 0 && (
-            <p style={{ color: "var(--color-gray-500)", fontSize: "0.875rem", padding: "1rem" }}>
+            <div className="empty-state">
+              <TrainIcon size={32} />
               駅データがありません。「最寄駅を自動リンク」から自動取得できます。
-            </p>
+            </div>
           )}
         </div>
       </section>

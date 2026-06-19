@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { PlacesImporter } from "@/components/admin/PlacesImporter";
+import { GlobeAltIcon } from "@/components/ui/Icons";
 
 export const metadata = { title: "Google Places 取込 | FitBase CMS" };
 
@@ -13,7 +14,8 @@ export default async function PlacesImportPage() {
   return (
     <div>
       <div style={{ marginBottom: "1.5rem" }}>
-        <h1 style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--color-gray-900)", marginBottom: "0.25rem" }}>
+        <h1 style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "1.25rem", fontWeight: 700, color: "var(--color-gray-900)", marginBottom: "0.25rem" }}>
+          <GlobeAltIcon size={20} />
           Google Places 取込
         </h1>
         <p style={{ fontSize: "0.875rem", color: "var(--color-gray-500)" }}>
