@@ -10,11 +10,14 @@ import {
   SearchIcon,
   GlobeAltIcon,
   TrophyIcon,
+  PhoneIcon,
+  CurrencyYenIcon,
 } from "@/components/ui/Icons";
 import { isGoogleApiConfigured } from "@/lib/google/auth";
 import { fetchGa4Summary } from "@/lib/google/analytics";
 import { fetchGscSummary } from "@/lib/google/search-console";
 import { TrendChart } from "@/components/admin/AnalyticsCharts";
+import { fetchSalesMetrics } from "@/lib/sales-metrics";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "ダッシュボード | FitBase CMS" };
@@ -59,6 +62,8 @@ function SummaryMetric({
   value,
   previous,
   isPercent,
+  display: displayOverride,
+  detail,
   icon,
   color,
   bg,
@@ -67,11 +72,13 @@ function SummaryMetric({
   value: number;
   previous?: number;
   isPercent?: boolean;
+  display?: string;
+  detail?: string;
   icon: React.ReactNode;
   color: string;
   bg: string;
 }) {
-  const display = isPercent ? `${(value * 100).toFixed(1)}%` : value.toLocaleString();
+  const display = displayOverride ?? (isPercent ? `${(value * 100).toFixed(1)}%` : value.toLocaleString());
   return (
     <div style={{ display: "flex", alignItems: "flex-start", gap: "0.625rem" }}>
       <span
@@ -99,6 +106,7 @@ function SummaryMetric({
             </span>
           )}
         </div>
+        {detail && <p style={{ fontSize: "0.6875rem", color: "var(--color-gray-400)" }}>{detail}</p>}
       </div>
     </div>
   );
@@ -182,6 +190,8 @@ export default async function DashboardPage() {
       gsc = null;
     }
   }
+
+  const salesMetrics = await fetchSalesMetrics();
 
   const mergedTrend = ga4?.trend.map((g) => ({
     date: g.date,
@@ -411,6 +421,71 @@ export default async function DashboardPage() {
           </a>
         </div>
       )}
+
+      <h2 className="admin-section-title">営業サマリー</h2>
+      <div
+        style={{
+          backgroundColor: "var(--color-white)",
+          border: "1px solid var(--color-gray-200)",
+          borderRadius: "var(--radius-md)",
+          padding: "1.25rem 1.375rem",
+          marginBottom: "1.75rem",
+        }}
+      >
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "1rem" }}>
+          <SummaryMetric
+            label="平均アプローチ回数"
+            value={salesMetrics.avgActions}
+            display={`${salesMetrics.avgActions.toFixed(1)}回`}
+            detail={`合計${salesMetrics.totalActions}件 / 対象${salesMetrics.actionLeadCount}件`}
+            icon={<PhoneIcon size={16} />}
+            color="#1558D6"
+            bg="#E8EFFC"
+          />
+          <SummaryMetric
+            label="アポ獲得率"
+            value={salesMetrics.apptRate ?? 0}
+            isPercent
+            detail={`${salesMetrics.apptCount}件 / ${salesMetrics.notStartedCount + salesMetrics.approachingCount}件`}
+            icon={<ClipboardListIcon size={16} />}
+            color="#7C3AED"
+            bg="#F3E8FF"
+          />
+          <SummaryMetric
+            label="商談実行率"
+            value={salesMetrics.negoRate ?? 0}
+            isPercent
+            detail={`${salesMetrics.negoCount}件 / ${salesMetrics.apptCount}件`}
+            icon={<TrophyIcon size={16} />}
+            color="#D97706"
+            bg="#FEF3C7"
+          />
+          <SummaryMetric
+            label="成約率"
+            value={salesMetrics.wonRate ?? 0}
+            isPercent
+            detail={`${salesMetrics.wonCount}件 / ${salesMetrics.negoCount}件`}
+            icon={<CheckCircleIcon size={16} />}
+            color="#15803D"
+            bg="#DCFCE7"
+          />
+          <SummaryMetric
+            label="平均契約単価"
+            value={salesMetrics.contractAvg ?? 0}
+            display={salesMetrics.contractAvg !== null ? `¥${Math.round(salesMetrics.contractAvg).toLocaleString()}` : "—"}
+            detail={`合計¥${salesMetrics.contractTotal.toLocaleString()} / ${salesMetrics.contractCount}件`}
+            icon={<CurrencyYenIcon size={16} />}
+            color="var(--color-gray-700)"
+            bg="var(--color-gray-100)"
+          />
+        </div>
+        <a
+          href="/admin/sales"
+          style={{ display: "inline-block", marginTop: "1rem", fontSize: "0.8125rem", color: "var(--color-link)", fontWeight: 600 }}
+        >
+          営業リストを見る →
+        </a>
+      </div>
 
       <h2 className="admin-section-title">ジム統計</h2>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "1rem" }}>

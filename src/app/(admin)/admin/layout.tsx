@@ -14,6 +14,7 @@ import {
   InboxIcon,
   ArrowRightOnRectangleIcon,
   ChartBarIcon,
+  CurrencyYenIcon,
 } from "@/components/ui/Icons";
 
 export const metadata: Metadata = {
@@ -95,6 +96,14 @@ export default async function AdminLayout({
       title: "申請・問い合わせ",
       icon: <InboxIcon size={13} />,
       links: [{ label: "申請一覧", href: "/admin/requests", badge: pendingRequestsTotal }],
+    },
+    {
+      title: "営業",
+      icon: <CurrencyYenIcon size={13} />,
+      links: [
+        { label: "営業リスト", href: "/admin/sales" },
+        { label: "担当者管理", href: "/admin/sales/reps" },
+      ],
     },
     {
       title: "SEO・分析",
