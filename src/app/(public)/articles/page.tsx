@@ -43,6 +43,7 @@ export default async function ArticlesListPage() {
                   width={120}
                   height={80}
                   style={{ width: "120px", height: "80px", objectFit: "cover", borderRadius: "var(--radius-sm)", flexShrink: 0 }}
+                  unoptimized
                 />
               )}
               <div style={{ minWidth: 0 }}>

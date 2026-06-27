@@ -56,6 +56,7 @@ export function GymListItem({ gym }: Props) {
             alt={gym.name}
             width={180}
             height={128}
+            unoptimized
             className="gym-list-item__image"
           />
         ) : (

@@ -156,6 +156,7 @@ export default async function RankingDetailPage({
           width={1280}
           height={720}
           style={{ width: "100%", height: "auto", borderRadius: "var(--radius-md)", marginBottom: "1.5rem" }}
+          unoptimized
           priority
         />
       )}
@@ -188,7 +189,7 @@ export default async function RankingDetailPage({
                     </span>
                     <div className="ranking-podium__image-wrap">
                       {g.image_url ? (
-                        <Image src={g.image_url} alt={g.name} width={160} height={120} className="ranking-podium__image" />
+                        <Image src={g.image_url} alt={g.name} width={160} height={120} className="ranking-podium__image" unoptimized />
                       ) : (
                         <div className="gym-list-item__no-image" style={{ width: "100%", height: "100%" }}>
                           <span>写真なし</span>

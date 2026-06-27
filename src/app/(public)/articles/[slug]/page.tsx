@@ -126,6 +126,7 @@ export default async function ArticleDetailPage({
           width={840}
           height={460}
           style={{ width: "100%", height: "auto", maxHeight: "420px", objectFit: "cover", borderRadius: "var(--radius-md)", marginBottom: "1.5rem" }}
+          unoptimized
           priority
         />
       )}

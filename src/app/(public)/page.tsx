@@ -363,6 +363,7 @@ export default async function TopPage() {
                             alt={gym.name}
                             fill
                             style={{ objectFit: "cover" }}
+                            unoptimized
                           />
                         ) : (
                           <div

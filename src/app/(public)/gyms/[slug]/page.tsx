@@ -217,6 +217,7 @@ export default async function GymDetailPage({
                 width={760}
                 height={480}
                 style={{ width: "100%", height: "auto", maxHeight: "380px", objectFit: "cover", borderRadius: "var(--radius-md)" }}
+                unoptimized
                 priority
               />
             </div>
@@ -233,6 +234,7 @@ export default async function GymDetailPage({
                   width={140}
                   height={100}
                   style={{ width: "140px", height: "100px", objectFit: "cover", borderRadius: "var(--radius-sm)" }}
+                  unoptimized
                 />
               ))}
             </div>
