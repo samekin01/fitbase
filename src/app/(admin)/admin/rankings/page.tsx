@@ -96,9 +96,11 @@ export default async function RankingsListPage() {
                   <td style={{ fontSize: "0.75rem", color: "var(--color-gray-500)" }}>
                     {new Date(r.updated_at).toLocaleDateString("ja-JP")}
                   </td>
-                  <td style={{ display: "flex", gap: "0.375rem" }}>
-                    <Link href={`/admin/rankings/${r.id}`} className="btn btn-secondary btn-sm">編集</Link>
-                    <Link href={`/admin/rankings/${r.id}/gyms`} className="btn btn-secondary btn-sm">ランクイン</Link>
+                  <td>
+                    <div style={{ display: "flex", gap: "0.375rem" }}>
+                      <Link href={`/admin/rankings/${r.id}`} className="btn btn-secondary btn-sm">編集</Link>
+                      <Link href={`/admin/rankings/${r.id}/gyms`} className="btn btn-secondary btn-sm">ランクイン</Link>
+                    </div>
                   </td>
                 </tr>
               ))

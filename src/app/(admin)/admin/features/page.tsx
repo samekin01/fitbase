@@ -61,9 +61,11 @@ export default async function FeaturesListPage() {
                   <td style={{ fontSize: "0.75rem", color: "var(--color-gray-500)" }}>
                     {new Date(f.updated_at).toLocaleDateString("ja-JP")}
                   </td>
-                  <td style={{ display: "flex", gap: "0.375rem" }}>
-                    <Link href={`/admin/features/${f.id}`} className="btn btn-secondary btn-sm">編集</Link>
-                    <Link href={`/admin/features/${f.id}/gyms`} className="btn btn-secondary btn-sm">掲載ジム</Link>
+                  <td>
+                    <div style={{ display: "flex", gap: "0.375rem" }}>
+                      <Link href={`/admin/features/${f.id}`} className="btn btn-secondary btn-sm">編集</Link>
+                      <Link href={`/admin/features/${f.id}/gyms`} className="btn btn-secondary btn-sm">掲載ジム</Link>
+                    </div>
                   </td>
                 </tr>
               ))
