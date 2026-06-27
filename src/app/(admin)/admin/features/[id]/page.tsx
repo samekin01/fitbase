@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { FeatureForm } from "@/components/admin/FeatureForm";
+import { FeatureThumbnailGenerator } from "@/components/admin/FeatureThumbnailGenerator";
 import { ConfirmForm } from "@/components/admin/ConfirmForm";
 import { updateFeature, deleteFeature } from "@/lib/actions/features";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -18,7 +19,7 @@ export default async function FeatureEditPage({
   const supabase = createAdminClient();
 
   const [{ data: feature }, { data: prefectures }, { data: cities }, stations] = await Promise.all([
-    supabase.from("features").select("*").eq("id", id).single(),
+    (supabase as any).from("features").select("*").eq("id", id).single(),
     supabase.from("prefectures").select("*").order("sort_order"),
     supabase.from("cities").select("*").order("sort_order"),
     fetchAllRows((from, to) =>
@@ -53,6 +54,8 @@ export default async function FeatureEditPage({
           )}
         </div>
       </div>
+
+      <FeatureThumbnailGenerator featureId={id} imageUrl={feature.eyecatch_image_url} />
 
       <FeatureForm
         feature={feature}

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
@@ -22,9 +23,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const supabase = createAdminClient();
-  const { data: feature } = await supabase
+  const { data: feature } = await (supabase as any)
     .from("features")
-    .select("title, seo_title, meta_description")
+    .select("title, seo_title, meta_description, eyecatch_image_url, noindex")
     .eq("slug", slug)
     .eq("status", "published")
     .single();
@@ -34,7 +35,14 @@ export async function generateMetadata({
     title,
     description: feature.meta_description,
     alternates: { canonical: `/features/${slug}/` },
-    openGraph: { title, description: feature.meta_description ?? undefined, url: `/features/${slug}/`, type: "website" },
+    openGraph: {
+      title,
+      description: feature.meta_description ?? undefined,
+      url: `/features/${slug}/`,
+      type: "website",
+      images: feature.eyecatch_image_url ? [feature.eyecatch_image_url] : undefined,
+    },
+    robots: feature.noindex ? { index: false } : undefined,
   };
 }
 
@@ -46,7 +54,7 @@ export default async function FeatureDetailPage({
   const { slug } = await params;
   const supabase = createAdminClient();
 
-  const { data: feature } = await supabase
+  const { data: feature } = await (supabase as any)
     .from("features")
     .select("*, prefectures(name, slug), cities(name, slug)")
     .eq("slug", slug)
@@ -146,6 +154,18 @@ export default async function FeatureDetailPage({
         )}
       </div>
       <h1 className="page-title">{feature.title}</h1>
+
+      {feature.eyecatch_image_url && (
+        <Image
+          src={feature.eyecatch_image_url}
+          alt={feature.title}
+          width={1280}
+          height={720}
+          style={{ width: "100%", height: "auto", borderRadius: "var(--radius-md)", marginBottom: "1.5rem" }}
+          unoptimized
+          priority
+        />
+      )}
 
       {content && (
         <>

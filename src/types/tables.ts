@@ -164,8 +164,10 @@ export type Feature = {
   category: string | null;
   body_md: string | null;
   faq_json: unknown;
+  eyecatch_image_url: string | null;
   seo_title: string | null;
   meta_description: string | null;
+  noindex: boolean;
   sort_order: number;
   status: ContentStatus;
   created_at: string;

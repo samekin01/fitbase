@@ -4,6 +4,8 @@ import { useActionState } from "react";
 import type { Gym, Prefecture, City, Station, Tag } from "@/types/tables";
 import { Field, CheckField } from "@/components/admin/fields";
 import { SeoFieldGroup } from "@/components/admin/SeoFieldGroup";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
+import { uploadBodyImage } from "@/lib/actions/images";
 import { BuildingOfficeIcon, MapPinIcon, PhoneIcon, CurrencyYenIcon, StarIcon, TagIcon as TagIconUi, DocumentTextIcon, SearchIcon } from "@/components/ui/Icons";
 
 type Props = {
@@ -207,19 +209,19 @@ export function GymForm({ gym, prefectures, cities, stations, allTags, assignedT
         </h2>
         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
           <Field label="店舗説明">
-            <textarea name="description" rows={5} defaultValue={gym?.description ?? ""} className="form-input" style={{ resize: "vertical" }} />
+            <RichTextEditor name="description" defaultValue={gym?.description} uploadAction={uploadBodyImage.bind(null, "gyms")} minHeight={140} />
           </Field>
           <Field label="おすすめポイント">
-            <textarea name="recommended_points" rows={3} defaultValue={gym?.recommended_points ?? ""} className="form-input" style={{ resize: "vertical" }} />
+            <RichTextEditor name="recommended_points" defaultValue={gym?.recommended_points} uploadAction={uploadBodyImage.bind(null, "gyms")} minHeight={100} />
           </Field>
           <Field label="対象ユーザー">
-            <textarea name="target_users" rows={2} defaultValue={gym?.target_users ?? ""} className="form-input" style={{ resize: "vertical" }} />
+            <RichTextEditor name="target_users" defaultValue={gym?.target_users} uploadAction={uploadBodyImage.bind(null, "gyms")} minHeight={70} />
           </Field>
           <Field label="トレーナー情報">
-            <textarea name="trainer_info" rows={3} defaultValue={gym?.trainer_info ?? ""} className="form-input" style={{ resize: "vertical" }} />
+            <RichTextEditor name="trainer_info" defaultValue={gym?.trainer_info} uploadAction={uploadBodyImage.bind(null, "gyms")} minHeight={100} />
           </Field>
           <Field label="設備">
-            <textarea name="facilities" rows={2} defaultValue={gym?.facilities ?? ""} className="form-input" style={{ resize: "vertical" }} />
+            <RichTextEditor name="facilities" defaultValue={gym?.facilities} uploadAction={uploadBodyImage.bind(null, "gyms")} minHeight={70} />
           </Field>
         </div>
       </div>

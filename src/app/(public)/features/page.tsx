@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
@@ -15,7 +16,7 @@ export default async function FeaturesListPage() {
   const supabase = createAdminClient();
   const { data: features } = await supabase
     .from("features")
-    .select("title, slug, category, prefectures(name), cities(name)")
+    .select("title, slug, category, eyecatch_image_url, prefectures(name), cities(name)")
     .eq("status", "published")
     .order("sort_order");
 
@@ -33,15 +34,27 @@ export default async function FeaturesListPage() {
               key={f.slug}
               href={`/features/${f.slug}/`}
               className="card card-hover"
-              style={{ display: "block", padding: "1rem 1.25rem", textDecoration: "none" }}
+              style={{ display: "flex", gap: "1rem", padding: "1rem 1.25rem", textDecoration: "none", alignItems: "center" }}
             >
-              <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.375rem" }}>
-                {f.category && <span className="badge badge-blue">{f.category}</span>}
-                {(f.cities?.name ?? f.prefectures?.name) && (
-                  <span className="badge badge-gray">{f.cities?.name ?? f.prefectures?.name}</span>
-                )}
+              {f.eyecatch_image_url && (
+                <Image
+                  src={f.eyecatch_image_url}
+                  alt={f.title}
+                  width={128}
+                  height={72}
+                  style={{ width: "128px", height: "72px", objectFit: "cover", borderRadius: "var(--radius-sm)", flexShrink: 0 }}
+                  unoptimized
+                />
+              )}
+              <div style={{ minWidth: 0 }}>
+                <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.375rem" }}>
+                  {f.category && <span className="badge badge-blue">{f.category}</span>}
+                  {(f.cities?.name ?? f.prefectures?.name) && (
+                    <span className="badge badge-gray">{f.cities?.name ?? f.prefectures?.name}</span>
+                  )}
+                </div>
+                <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--color-gray-900)" }}>{f.title}</h2>
               </div>
-              <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--color-gray-900)" }}>{f.title}</h2>
             </Link>
           ))}
         </div>

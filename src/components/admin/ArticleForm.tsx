@@ -4,6 +4,8 @@ import { useActionState } from "react";
 import type { Article } from "@/types/tables";
 import { Field } from "@/components/admin/fields";
 import { SeoFieldGroup } from "@/components/admin/SeoFieldGroup";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
+import { uploadBodyImage } from "@/lib/actions/images";
 import { DocumentTextIcon, SearchIcon } from "@/components/ui/Icons";
 
 type Props = {
@@ -67,8 +69,8 @@ export function ArticleForm({ article, action, submitLabel = "保存" }: Props) 
       </div>
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1rem" }}>
-        <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>本文（Markdown）</h2>
-        <textarea name="body_md" rows={18} defaultValue={article?.body_md ?? ""} className="form-input" style={{ resize: "vertical", fontFamily: "monospace", fontSize: "0.8125rem" }} />
+        <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>本文</h2>
+        <RichTextEditor name="body_md" defaultValue={article?.body_md} uploadAction={uploadBodyImage.bind(null, "articles")} minHeight={360} />
       </div>
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1rem" }}>

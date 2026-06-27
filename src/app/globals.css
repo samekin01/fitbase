@@ -666,6 +666,22 @@ a:hover {
   line-height: 1.4;
 }
 
+/* ─── リッチテキストエディタ（TipTap） ─── */
+.rich-text-editor-content .ProseMirror {
+  outline: none;
+}
+.rich-text-editor-content .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--color-gray-400);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+.rich-text-editor-content img {
+  max-width: 100%;
+  border-radius: var(--radius-sm);
+}
+
 /* ─── 本文（Markdown レンダリング） ─── */
 .markdown-body {
   font-size: 0.9375rem;

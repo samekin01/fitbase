@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { GymListItem } from "@/components/gym/GymListItem";
 import { GYM_LIST_SELECT, toGymSummary, nearestStationInfo } from "@/lib/gym-query";
+import { renderMarkdown, stripMarkdownToPlainText } from "@/lib/markdown";
 import { TrainIcon } from "@/components/ui/Icons";
 
 export const revalidate = 3600;
@@ -84,6 +85,20 @@ export default async function GymDetailPage({
       .eq("gym_id", gym.id),
   ]);
 
+  const [
+    { content: descriptionContent },
+    { content: recommendedPointsContent },
+    { content: targetUsersContent },
+    { content: trainerInfoContent },
+    { content: facilitiesContent },
+  ] = await Promise.all([
+    renderMarkdown(gym.description),
+    renderMarkdown(gym.recommended_points),
+    renderMarkdown(gym.target_users),
+    renderMarkdown(gym.trainer_info),
+    renderMarkdown(gym.facilities),
+  ]);
+
   const coverImage = images?.[0] ?? null;
   const otherImages = images?.filter((i: any) => i.id !== coverImage?.id) ?? [];
   const pref = gym.prefectures as any;
@@ -135,7 +150,7 @@ export default async function GymDetailPage({
     url: gym.website_url ?? `${siteUrl}/gyms/${gym.slug}/`,
     ...(gym.address ? { address: { "@type": "PostalAddress", addressCountry: "JP", streetAddress: gym.address } } : {}),
     ...(gym.phone ? { telephone: gym.phone } : {}),
-    ...(gym.description ? { description: gym.description } : {}),
+    ...(gym.description ? { description: stripMarkdownToPlainText(gym.description) } : {}),
     ...(coverImage ? { image: coverImage.image_url } : {}),
     ...(gym.google_rating != null ? {
       aggregateRating: {
@@ -274,52 +289,42 @@ export default async function GymDetailPage({
           )}
 
           {/* 店舗説明 */}
-          {gym.description && (
-            <section style={{ marginBottom: "1.75rem" }}>
+          {descriptionContent && (
+            <section className="markdown-body" style={{ marginBottom: "1.75rem" }}>
               <h2 className="section-title">店舗紹介</h2>
-              <p style={{ fontSize: "0.9375rem", lineHeight: 1.85, whiteSpace: "pre-wrap" }}>
-                {gym.description}
-              </p>
+              {descriptionContent}
             </section>
           )}
 
           {/* おすすめポイント */}
-          {gym.recommended_points && (
-            <section style={{ marginBottom: "1.75rem" }}>
+          {recommendedPointsContent && (
+            <section className="markdown-body" style={{ marginBottom: "1.75rem" }}>
               <h2 className="section-title">おすすめポイント</h2>
-              <p style={{ fontSize: "0.9375rem", lineHeight: 1.85, whiteSpace: "pre-wrap" }}>
-                {gym.recommended_points}
-              </p>
+              {recommendedPointsContent}
             </section>
           )}
 
           {/* こんな方に */}
-          {gym.target_users && (
-            <section style={{ marginBottom: "1.75rem" }}>
+          {targetUsersContent && (
+            <section className="markdown-body" style={{ marginBottom: "1.75rem" }}>
               <h2 className="section-title">こんな方におすすめ</h2>
-              <p style={{ fontSize: "0.9375rem", lineHeight: 1.85, whiteSpace: "pre-wrap" }}>
-                {gym.target_users}
-              </p>
+              {targetUsersContent}
             </section>
           )}
 
           {/* トレーナー情報 */}
-          {gym.trainer_info && (
-            <section style={{ marginBottom: "1.75rem" }}>
+          {trainerInfoContent && (
+            <section className="markdown-body" style={{ marginBottom: "1.75rem" }}>
               <h2 className="section-title">トレーナー情報</h2>
-              <p style={{ fontSize: "0.9375rem", lineHeight: 1.85, whiteSpace: "pre-wrap" }}>
-                {gym.trainer_info}
-              </p>
+              {trainerInfoContent}
             </section>
           )}
 
           {/* 設備・施設 */}
-          {gym.facilities && (
-            <section style={{ marginBottom: "1.75rem" }}>
+          {facilitiesContent && (
+            <section className="markdown-body" style={{ marginBottom: "1.75rem" }}>
               <h2 className="section-title">設備・施設</h2>
-              <p style={{ fontSize: "0.9375rem", lineHeight: 1.85, whiteSpace: "pre-wrap" }}>
-                {gym.facilities}
-              </p>
+              {facilitiesContent}
             </section>
           )}
 

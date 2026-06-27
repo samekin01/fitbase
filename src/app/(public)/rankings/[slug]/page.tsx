@@ -97,6 +97,7 @@ export default async function RankingDetailPage({
     .limit(4);
 
   const { content, toc } = await renderMarkdown(ranking.body_md);
+  const { content: closingContent } = await renderMarkdown(ranking.closing_md);
   const pref = ranking.prefectures as any;
   const city = ranking.cities as any;
 
@@ -259,11 +260,9 @@ export default async function RankingDetailPage({
         </section>
       )}
 
-      {ranking.closing_md && (
-        <section className="ranking-closing" style={{ marginBottom: "2.5rem" }}>
-          <p style={{ fontSize: "0.9375rem", color: "var(--color-gray-700)", lineHeight: 1.8, margin: 0 }}>
-            {ranking.closing_md}
-          </p>
+      {closingContent && (
+        <section className="ranking-closing markdown-body" style={{ marginBottom: "2.5rem" }}>
+          {closingContent}
         </section>
       )}
 

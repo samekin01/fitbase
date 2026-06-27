@@ -4,6 +4,8 @@ import { useActionState } from "react";
 import type { Ranking, Prefecture, City, Station } from "@/types/tables";
 import { Field } from "@/components/admin/fields";
 import { SeoFieldGroup } from "@/components/admin/SeoFieldGroup";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
+import { uploadBodyImage } from "@/lib/actions/images";
 import { TrophyIcon, MapPinIcon, DocumentTextIcon, SearchIcon } from "@/components/ui/Icons";
 
 type Props = {
@@ -101,22 +103,22 @@ export function RankingForm({ ranking, prefectures, cities, stations, action, su
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1rem" }}>
         <h2 style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9375rem", fontWeight: 700, marginBottom: "0.25rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>
-          <DocumentTextIcon size={16} />導入文（Markdown）
+          <DocumentTextIcon size={16} />導入文
         </h2>
         <p style={{ fontSize: "0.8125rem", color: "var(--color-gray-500)", margin: "0.5rem 0" }}>
           ランキング本文の先頭に表示される導入文です。各ジムの紹介文は「ランクイン管理」画面で順位ごとに編集します。
         </p>
-        <textarea name="body_md" rows={10} defaultValue={ranking?.body_md ?? ""} className="form-input" style={{ resize: "vertical", fontFamily: "monospace", fontSize: "0.8125rem" }} />
+        <RichTextEditor name="body_md" defaultValue={ranking?.body_md} uploadAction={uploadBodyImage.bind(null, "rankings")} minHeight={220} />
       </div>
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1rem" }}>
         <h2 style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9375rem", fontWeight: 700, marginBottom: "0.25rem", paddingBottom: "0.5rem", borderBottom: "2px solid var(--color-gray-200)" }}>
-          <DocumentTextIcon size={16} />クロージング文（Markdown）
+          <DocumentTextIcon size={16} />クロージング文
         </h2>
         <p style={{ fontSize: "0.8125rem", color: "var(--color-gray-500)", margin: "0.5rem 0" }}>
           ランキング本文の最後（ジム紹介の後）に表示されます。
         </p>
-        <textarea name="closing_md" rows={6} defaultValue={ranking?.closing_md ?? ""} className="form-input" style={{ resize: "vertical", fontFamily: "monospace", fontSize: "0.8125rem" }} />
+        <RichTextEditor name="closing_md" defaultValue={ranking?.closing_md} uploadAction={uploadBodyImage.bind(null, "rankings")} minHeight={160} />
       </div>
 
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1rem" }}>

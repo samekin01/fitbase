@@ -36,8 +36,10 @@ function parseFeatureFormData(formData: FormData) {
     category: (formData.get("category") as string) || null,
     body_md: (formData.get("body_md") as string) || null,
     faq_json: parseFaqJson(formData),
+    eyecatch_image_url: (formData.get("eyecatch_image_url") as string) || null,
     seo_title: (formData.get("seo_title") as string) || null,
     meta_description: (formData.get("meta_description") as string) || null,
+    noindex: formData.get("noindex") === "on",
     sort_order: Number(formData.get("sort_order") ?? 0),
     status: (formData.get("status") as ContentStatus) || "draft",
   };
@@ -49,7 +51,7 @@ export async function createFeature(formData: FormData) {
 
   const { data: feature, error } = await supabase
     .from("features")
-    .insert(data)
+    .insert(data as any)
     .select("id")
     .single();
 
@@ -63,7 +65,7 @@ export async function updateFeature(id: string, formData: FormData) {
   const supabase = createAdminClient();
   const data = parseFeatureFormData(formData);
 
-  const { error } = await supabase.from("features").update(data).eq("id", id);
+  const { error } = await supabase.from("features").update(data as any).eq("id", id);
   if (error) return { error: error.message };
 
   const { data: feature } = await supabase.from("features").select("slug").eq("id", id).single();

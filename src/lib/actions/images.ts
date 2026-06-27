@@ -47,6 +47,28 @@ export async function uploadGymImage(gymId: string, formData: FormData) {
   revalidatePath(`/admin/gyms/${gymId}/images`);
 }
 
+// 本文（Markdown）内に挿入する画像を、特定の管理対象（ジム画像一覧など）に紐づけずアップロードする。
+// 戻り値の公開URLをMarkdown本文中に直接埋め込んで使う。
+export async function uploadBodyImage(scope: string, formData: FormData): Promise<string> {
+  const supabase = createAdminClient();
+  const file = formData.get("file") as File | null;
+
+  if (!file || file.size === 0) throw new Error("ファイルが選択されていません。");
+  if (!file.type.startsWith("image/")) throw new Error("画像ファイルを選択してください。");
+  if (file.size > 5 * 1024 * 1024) throw new Error("ファイルサイズは5MB以下にしてください。");
+
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+  const storagePath = `body/${scope}/${Date.now()}.${ext}`;
+
+  const { error: storageError } = await supabase.storage
+    .from("gym-images")
+    .upload(storagePath, file, { contentType: file.type, upsert: false });
+  if (storageError) throw new Error(storageError.message);
+
+  const { data: publicUrl } = supabase.storage.from("gym-images").getPublicUrl(storagePath);
+  return publicUrl.publicUrl;
+}
+
 export async function deleteGymImage(gymId: string, imageId: string, storagePath: string) {
   const supabase = createAdminClient();
 
