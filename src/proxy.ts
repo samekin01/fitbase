@@ -11,6 +11,14 @@ export async function proxy(request: NextRequest) {
     return new NextResponse("Forbidden", { status: 403 });
   }
 
+  // 管理画面以外（公開ページ・画像最適化エンドポイント等）はボットチェックのみ行い、
+  // Supabaseへの認証確認はせずそのまま通す（不要なコストをかけない）。
+  const pathname = request.nextUrl.pathname;
+  const isAdminPath = pathname.startsWith("/admin");
+  if (!isAdminPath) {
+    return NextResponse.next();
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -60,5 +68,7 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/search"],
+  // 静的アセット（_next/static・favicon等）以外の全リクエストを対象にし、
+  // ボットが/search以外のパス（/_next/imageなど）を直接叩くケースも防ぐ。
+  matcher: ["/((?!_next/static|favicon.ico|icon.png|apple-icon.png).*)"],
 };
