@@ -1,7 +1,16 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+// robots.txtのDisallowを無視して/searchを無限に巡回するボット対策。
+// DB問い合わせ・画面生成の前段でブロックすることでコストを抑える。
+const BLOCKED_BOT_UA = /meta-externalagent|facebookexternalhit|bytespider|petalbot|mj12bot/i;
+
 export async function proxy(request: NextRequest) {
+  const userAgent = request.headers.get("user-agent") ?? "";
+  if (BLOCKED_BOT_UA.test(userAgent)) {
+    return new NextResponse("Forbidden", { status: 403 });
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -51,5 +60,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/search"],
 };
