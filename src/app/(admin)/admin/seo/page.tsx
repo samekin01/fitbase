@@ -101,7 +101,7 @@ function Section({ title, rows }: { title: string; rows: Row[] }) {
 export default async function SeoPage() {
   const supabase = createAdminClient();
 
-  const [gyms, { data: articles }, { data: features }, { data: rankings }] = await Promise.all([
+  const [gyms, { data: articles }, { data: features }, { data: rankings }, { data: prefectures }, { data: cities }] = await Promise.all([
     fetchAllRows((from, to) =>
       supabase
         .from("gyms")
@@ -112,6 +112,8 @@ export default async function SeoPage() {
     supabase.from("articles").select("id, title, seo_title, meta_description, noindex").eq("status", "published"),
     supabase.from("features").select("id, title, seo_title, meta_description").eq("status", "published"),
     supabase.from("rankings").select("id, title, seo_title, meta_description").eq("status", "published"),
+    supabase.from("prefectures").select("id, name, seo_title, meta_description"),
+    supabase.from("cities").select("id, name, seo_title, meta_description"),
   ]);
 
   const gymRows: Row[] = (gyms ?? []).map((g: any) => ({
@@ -144,8 +146,22 @@ export default async function SeoPage() {
     seo_title: r.seo_title,
     meta_description: r.meta_description,
   }));
+  const prefectureRows: Row[] = (prefectures ?? []).map((p: any) => ({
+    id: p.id,
+    name: p.name,
+    href: `/admin/areas/prefectures`,
+    seo_title: p.seo_title,
+    meta_description: p.meta_description,
+  }));
+  const cityRows: Row[] = (cities ?? []).map((c: any) => ({
+    id: c.id,
+    name: c.name,
+    href: `/admin/areas/cities`,
+    seo_title: c.seo_title,
+    meta_description: c.meta_description,
+  }));
 
-  const totalIssues = [gymRows, articleRows, featureRows, rankingRows]
+  const totalIssues = [gymRows, articleRows, featureRows, rankingRows, prefectureRows, cityRows]
     .flat()
     .filter((row) => getIssues(row).length > 0).length;
 
@@ -169,6 +185,8 @@ export default async function SeoPage() {
       <Section title="記事" rows={articleRows} />
       <Section title="特集" rows={featureRows} />
       <Section title="ランキング" rows={rankingRows} />
+      <Section title="都道府県ページ" rows={prefectureRows} />
+      <Section title="市区町村ページ" rows={cityRows} />
     </div>
   );
 }
