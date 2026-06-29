@@ -14,3 +14,17 @@ export async function createPrefecture(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath("/admin/areas/prefectures");
 }
+
+export async function updatePrefectureSeo(formData: FormData) {
+  const supabase = createAdminClient();
+  const id = formData.get("id") as string;
+  const seo_title = ((formData.get("seo_title") as string) || "").trim() || null;
+  const meta_description = ((formData.get("meta_description") as string) || "").trim() || null;
+
+  if (!id) throw new Error("idが不足しています");
+
+  const { error } = await supabase.from("prefectures").update({ seo_title, meta_description } as any).eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/areas/prefectures");
+  revalidatePath("/admin/seo");
+}

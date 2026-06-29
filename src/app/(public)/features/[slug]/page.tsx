@@ -7,6 +7,7 @@ import { GymListItem } from "@/components/gym/GymListItem";
 import { TocBox } from "@/components/content/TocBox";
 import { renderMarkdown } from "@/lib/markdown";
 import { toGymSummary } from "@/lib/gym-query";
+import { groupFeatureGymRows } from "@/lib/feature-gym-sections";
 
 export const revalidate = 3600;
 
@@ -66,19 +67,20 @@ export default async function FeatureDetailPage({
   const { data: rows } = await supabase
     .from("feature_gyms")
     .select(`
-      sort_order, comment,
+      sort_order, comment, section_label, headline,
       gyms(
         id, slug, name, status, address, area_name,
         monthly_fee_min, total_price_min,
         has_trial, is_female_friendly, has_private_room, has_nutrition_support, supports_contest, is_near_station,
         google_rating, google_review_count,
-        gym_images(url, is_cover)
+        gym_images(image_url, is_cover)
       )
     `)
     .eq("feature_id", feature.id)
     .order("sort_order");
 
   const gymRows = (rows ?? []).filter((r: any) => r.gyms?.status === "published");
+  const gymGroups = groupFeatureGymRows(gymRows as any);
 
   const { data: related } = await supabase
     .from("features")
@@ -174,18 +176,34 @@ export default async function FeatureDetailPage({
         </>
       )}
 
-      {gymRows.length > 0 && (
+      {gymGroups.length > 0 && (
         <section style={{ marginBottom: "2.5rem" }}>
-          <h2 className="section-title">掲載ジム（{gymRows.length}件）</h2>
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-            {gymRows.map((r: any) => (
-              <div key={r.gyms.id}>
-                {r.comment && (
-                  <p style={{ fontSize: "0.8125rem", color: "var(--color-gray-600)", backgroundColor: "var(--color-gray-50)", padding: "0.625rem 0.875rem", borderRadius: "var(--radius-sm) var(--radius-sm) 0 0", marginBottom: 0 }}>
-                    {r.comment}
-                  </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+            {gymGroups.map((group, gi) => (
+              <div key={gi}>
+                {group.area_label && (
+                  <h2 className="section-title">{group.area_label}</h2>
                 )}
-                <GymListItem gym={toGymSummary(r.gyms)} />
+                <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+                  {group.rows.map((r: any, idx: number) => (
+                    <div key={r.gyms.id}>
+                      <h3 style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "1.0625rem", fontWeight: 700, color: "var(--color-gray-900)", marginBottom: "0.5rem" }}>
+                        {!r.headline && (
+                          <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "1.625rem", height: "1.625rem", borderRadius: "50%", backgroundColor: "var(--color-gray-900)", color: "#FFFFFF", fontSize: "0.8125rem", flexShrink: 0 }}>
+                            {idx + 1}
+                          </span>
+                        )}
+                        {r.headline || r.gyms.name}
+                      </h3>
+                      {r.comment && (
+                        <p style={{ fontSize: "0.875rem", color: "var(--color-gray-700)", lineHeight: 1.7, marginBottom: "0.625rem" }}>
+                          {r.comment}
+                        </p>
+                      )}
+                      <GymListItem gym={toGymSummary(r.gyms)} />
+                    </div>
+                  ))}
+                </div>
               </div>
             ))}
           </div>

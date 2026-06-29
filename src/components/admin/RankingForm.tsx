@@ -1,10 +1,11 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useRef } from "react";
 import type { Ranking, Prefecture, City, Station } from "@/types/tables";
 import { Field } from "@/components/admin/fields";
 import { SeoFieldGroup } from "@/components/admin/SeoFieldGroup";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { uploadBodyImage } from "@/lib/actions/images";
 import { TrophyIcon, MapPinIcon, DocumentTextIcon, SearchIcon } from "@/components/ui/Icons";
 
@@ -31,8 +32,16 @@ export function RankingForm({ ranking, prefectures, cities, stations, action, su
     null
   );
 
+  const formRef = useRef<HTMLFormElement>(null);
+  const statusRef = useRef<HTMLSelectElement>(null);
+
+  function publishNow() {
+    if (statusRef.current) statusRef.current.value = "published";
+    formRef.current?.requestSubmit();
+  }
+
   return (
-    <form action={formAction}>
+    <form action={formAction} ref={formRef}>
       {state?.error && (
         <div style={{ backgroundColor: "#FEE2E2", border: "1px solid #FCA5A5", borderRadius: "var(--radius-md)", padding: "0.75rem 1rem", marginBottom: "1rem", fontSize: "0.875rem", color: "var(--color-error)" }}>
           {state.error}
@@ -53,14 +62,14 @@ export function RankingForm({ ranking, prefectures, cities, stations, action, su
           <Field label="カテゴリ">
             <input name="category" type="text" defaultValue={ranking?.category ?? ""} className="form-input" placeholder="例: 安さ重視" />
           </Field>
-          <Field label="アイキャッチ画像URL">
-            <input name="eyecatch_image_url" type="url" defaultValue={ranking?.eyecatch_image_url ?? ""} className="form-input" placeholder="https://..." />
+          <Field label="アイキャッチ画像">
+            <ImageUploadField name="eyecatch_image_url" defaultValue={ranking?.eyecatch_image_url} uploadAction={uploadBodyImage.bind(null, "rankings")} />
             <p style={{ fontSize: "0.75rem", color: "var(--color-gray-500)", marginTop: "0.25rem" }}>
               推奨サイズ: 1280×720px（横16:9）
             </p>
           </Field>
           <Field label="ステータス">
-            <select name="status" defaultValue={ranking?.status ?? "draft"} className="form-input">
+            <select name="status" ref={statusRef} defaultValue={ranking?.status ?? "draft"} className="form-input">
               {STATUSES.map((s) => (
                 <option key={s.value} value={s.value}>{s.label}</option>
               ))}
@@ -133,9 +142,14 @@ export function RankingForm({ ranking, prefectures, cities, stations, action, su
       </div>
 
       <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
-        <button type="submit" className="btn btn-primary" disabled={isPending}>
+        <button type="submit" className="btn btn-secondary" disabled={isPending}>
           {isPending ? "保存中..." : submitLabel}
         </button>
+        {ranking?.status !== "published" && (
+          <button type="button" onClick={publishNow} className="btn btn-primary" disabled={isPending}>
+            公開する
+          </button>
+        )}
       </div>
     </form>
   );

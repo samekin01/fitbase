@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { StatusBadge } from "@/components/ui/StatusBadge";
+import { ContentStatusSelect } from "@/components/admin/ContentStatusSelect";
+import { updateArticleStatus } from "@/lib/actions/articles";
 import { DocumentTextIcon } from "@/components/ui/Icons";
 
 export const dynamic = "force-dynamic";
@@ -55,7 +56,7 @@ export default async function ArticlesListPage() {
                     <div style={{ fontSize: "0.75rem", color: "var(--color-gray-400)" }}>{a.slug}</div>
                   </td>
                   <td>{a.category ? <span className="tag-pill">{a.category}</span> : "—"}</td>
-                  <td><StatusBadge status={a.status} /></td>
+                  <td><ContentStatusSelect key={a.status} id={a.id} currentStatus={a.status} action={updateArticleStatus} /></td>
                   <td style={{ fontSize: "0.75rem", color: "var(--color-gray-500)" }}>
                     {new Date(a.updated_at).toLocaleDateString("ja-JP")}
                   </td>

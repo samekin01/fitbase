@@ -18,7 +18,7 @@ export default async function FeatureGymsPage({
     supabase.from("features").select("id, title").eq("id", id).single(),
     supabase
       .from("feature_gyms")
-      .select("id, sort_order, comment, gyms(id, name, slug, status)")
+      .select("id, sort_order, comment, section_label, headline, gyms(id, name, slug, status)")
       .eq("feature_id", id)
       .order("sort_order"),
     supabase.from("gyms").select("id, name, status").order("name"),
@@ -41,10 +41,14 @@ export default async function FeatureGymsPage({
         </h1>
       </div>
 
+      <p style={{ fontSize: "0.8125rem", color: "var(--color-gray-500)", marginBottom: "1.25rem" }}>
+        エリア見出し（同じ文言の行はまとめて1つの見出しとして表示されます）と見出し（選び方の切り口）を設定すると、公開ページではエリア見出し(##)→ジムごとの見出し→紹介文→カードの順に記事内へ直接挿入されます。未設定の場合は連番付きでまとめて表示されます。
+      </p>
+
       <div style={{ backgroundColor: "var(--color-white)", border: "1px solid var(--color-gray-200)", borderRadius: "var(--radius-md)", padding: "1.25rem", marginBottom: "1.5rem" }}>
         <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, marginBottom: "0.75rem" }}>ジムを追加</h2>
         <form action={addAction} style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "flex-end" }}>
-          <div style={{ flex: "1 1 240px" }}>
+          <div style={{ flex: "1 1 200px" }}>
             <label className="form-label" htmlFor="gym_id">ジム</label>
             <select id="gym_id" name="gym_id" required className="form-input">
               <option value="">選択してください</option>
@@ -53,8 +57,16 @@ export default async function FeatureGymsPage({
               ))}
             </select>
           </div>
-          <div style={{ flex: "2 1 320px" }}>
-            <label className="form-label" htmlFor="comment">コメント（任意）</label>
+          <div style={{ flex: "1 1 180px" }}>
+            <label className="form-label" htmlFor="section_label">エリア見出し（任意）</label>
+            <input id="section_label" name="section_label" type="text" className="form-input" placeholder="例: 名古屋駅周辺" />
+          </div>
+          <div style={{ flex: "1 1 200px" }}>
+            <label className="form-label" htmlFor="headline">見出し（任意）</label>
+            <input id="headline" name="headline" type="text" className="form-input" placeholder="例: 安さで選ぶなら○○ジム" />
+          </div>
+          <div style={{ flex: "2 1 280px" }}>
+            <label className="form-label" htmlFor="comment">紹介文（任意）</label>
             <input id="comment" name="comment" type="text" className="form-input" placeholder="このジムを推す理由など" />
           </div>
           <button type="submit" className="btn btn-primary btn-sm">追加</button>
@@ -67,7 +79,7 @@ export default async function FeatureGymsPage({
             <tr>
               <th>表示順</th>
               <th>ジム名</th>
-              <th>コメント</th>
+              <th>エリア見出し／見出し／紹介文</th>
               <th></th>
             </tr>
           </thead>
@@ -75,11 +87,13 @@ export default async function FeatureGymsPage({
             {rows && rows.length > 0 ? (
               rows.map((row: any) => (
                 <tr key={row.id}>
-                  <td style={{ width: "180px" }}>
-                    <form action={updateFeatureGym.bind(null, id, row.id)} style={{ display: "flex", gap: "0.25rem", alignItems: "center" }}>
+                  <td style={{ width: "90px" }}>
+                    <form action={updateFeatureGym.bind(null, id, row.id)}>
                       <input type="hidden" name="comment" value={row.comment ?? ""} />
+                      <input type="hidden" name="section_label" value={row.section_label ?? ""} />
+                      <input type="hidden" name="headline" value={row.headline ?? ""} />
                       <input name="sort_order" type="number" defaultValue={row.sort_order} className="form-input" style={{ width: "70px" }} />
-                      <button type="submit" className="btn btn-secondary btn-sm">更新</button>
+                      <button type="submit" className="btn btn-secondary btn-sm" style={{ marginTop: "0.25rem" }}>更新</button>
                     </form>
                   </td>
                   <td style={{ fontWeight: 600 }}>
@@ -89,10 +103,14 @@ export default async function FeatureGymsPage({
                     )}
                   </td>
                   <td>
-                    <form action={updateFeatureGym.bind(null, id, row.id)} style={{ display: "flex", gap: "0.25rem" }}>
+                    <form action={updateFeatureGym.bind(null, id, row.id)} style={{ display: "flex", flexDirection: "column", gap: "0.375rem" }}>
                       <input type="hidden" name="sort_order" value={row.sort_order} />
-                      <input name="comment" type="text" defaultValue={row.comment ?? ""} className="form-input" style={{ minWidth: "220px" }} />
-                      <button type="submit" className="btn btn-secondary btn-sm">更新</button>
+                      <input name="section_label" type="text" defaultValue={row.section_label ?? ""} className="form-input" placeholder="エリア見出し" />
+                      <input name="headline" type="text" defaultValue={row.headline ?? ""} className="form-input" placeholder="見出し" />
+                      <input name="comment" type="text" defaultValue={row.comment ?? ""} className="form-input" placeholder="紹介文" />
+                      <div>
+                        <button type="submit" className="btn btn-secondary btn-sm">更新</button>
+                      </div>
                     </form>
                   </td>
                   <td>

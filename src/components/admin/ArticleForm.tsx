@@ -1,10 +1,11 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useRef } from "react";
 import type { Article } from "@/types/tables";
 import { Field } from "@/components/admin/fields";
 import { SeoFieldGroup } from "@/components/admin/SeoFieldGroup";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { uploadBodyImage } from "@/lib/actions/images";
 import { DocumentTextIcon, SearchIcon } from "@/components/ui/Icons";
 
@@ -28,8 +29,16 @@ export function ArticleForm({ article, action, submitLabel = "保存" }: Props) 
     null
   );
 
+  const formRef = useRef<HTMLFormElement>(null);
+  const statusRef = useRef<HTMLSelectElement>(null);
+
+  function publishNow() {
+    if (statusRef.current) statusRef.current.value = "published";
+    formRef.current?.requestSubmit();
+  }
+
   return (
-    <form action={formAction}>
+    <form action={formAction} ref={formRef}>
       <input type="hidden" name="_was_published" value={article?.status === "published" ? "true" : "false"} />
 
       {state?.error && (
@@ -55,11 +64,11 @@ export function ArticleForm({ article, action, submitLabel = "保存" }: Props) 
           <Field label="監修者名">
             <input name="supervisor_name" type="text" defaultValue={article?.supervisor_name ?? ""} className="form-input" />
           </Field>
-          <Field label="アイキャッチ画像URL">
-            <input name="eyecatch_image_url" type="url" defaultValue={article?.eyecatch_image_url ?? ""} className="form-input" />
+          <Field label="アイキャッチ画像">
+            <ImageUploadField name="eyecatch_image_url" defaultValue={article?.eyecatch_image_url} uploadAction={uploadBodyImage.bind(null, "articles")} />
           </Field>
           <Field label="ステータス">
-            <select name="status" defaultValue={article?.status ?? "draft"} className="form-input">
+            <select name="status" ref={statusRef} defaultValue={article?.status ?? "draft"} className="form-input">
               {ARTICLE_STATUSES.map((s) => (
                 <option key={s.value} value={s.value}>{s.label}</option>
               ))}
@@ -87,9 +96,14 @@ export function ArticleForm({ article, action, submitLabel = "保存" }: Props) 
       </div>
 
       <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
-        <button type="submit" className="btn btn-primary" disabled={isPending}>
+        <button type="submit" className="btn btn-secondary" disabled={isPending}>
           {isPending ? "保存中..." : submitLabel}
         </button>
+        {article?.status !== "published" && (
+          <button type="button" onClick={publishNow} className="btn btn-primary" disabled={isPending}>
+            公開する
+          </button>
+        )}
       </div>
     </form>
   );

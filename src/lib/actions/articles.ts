@@ -68,6 +68,23 @@ export async function updateArticle(id: string, formData: FormData) {
   return { success: true };
 }
 
+export async function updateArticleStatus(id: string, status: ContentStatus) {
+  const supabase = createAdminClient();
+  const { data: article } = await supabase.from("articles").select("slug, status, published_at").eq("id", id).single();
+
+  const updateData: Record<string, unknown> = { status };
+  if (article?.status !== "published" && status === "published" && !article?.published_at) {
+    updateData.published_at = new Date().toISOString();
+  }
+
+  const { error } = await supabase.from("articles").update(updateData).eq("id", id);
+  if (error) throw new Error(error.message);
+
+  if (article?.slug) revalidatePath(`/articles/${article.slug}`);
+  revalidatePath("/admin/articles");
+  revalidatePath("/articles");
+}
+
 export async function deleteArticle(id: string) {
   const supabase = createAdminClient();
   const { data: article } = await supabase.from("articles").select("slug").eq("id", id).single();

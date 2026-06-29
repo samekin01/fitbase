@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { StatusBadge } from "@/components/ui/StatusBadge";
+import { ContentStatusSelect } from "@/components/admin/ContentStatusSelect";
 import { ConfirmForm } from "@/components/admin/ConfirmForm";
 import { RankingAiFillRunner } from "@/components/admin/RankingAiFillRunner";
 import { AreaRankingGenerator } from "@/components/admin/AreaRankingGenerator";
-import { bulkGenerateCityRankings } from "@/lib/actions/rankings";
+import { bulkGenerateCityRankings, updateRankingStatus } from "@/lib/actions/rankings";
 import { TrophyIcon } from "@/components/ui/Icons";
 
 export const dynamic = "force-dynamic";
@@ -92,7 +92,7 @@ export default async function RankingsListPage() {
                   </td>
                   <td style={{ fontSize: "0.8125rem" }}>{r.cities?.name ?? r.prefectures?.name ?? "—"}</td>
                   <td>{r.category ? <span className="tag-pill">{r.category}</span> : "—"}</td>
-                  <td><StatusBadge status={r.status} /></td>
+                  <td><ContentStatusSelect key={r.status} id={r.id} currentStatus={r.status} action={updateRankingStatus} /></td>
                   <td style={{ fontSize: "0.75rem", color: "var(--color-gray-500)" }}>
                     {new Date(r.updated_at).toLocaleDateString("ja-JP")}
                   </td>

@@ -91,6 +91,17 @@ export async function uploadRankingThumbnail(rankingId: string, formData: FormDa
   revalidatePath(`/admin/rankings/${rankingId}`);
 }
 
+export async function updateRankingStatus(id: string, status: ContentStatus) {
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("rankings").update({ status } as any).eq("id", id);
+  if (error) throw new Error(error.message);
+
+  const { data: ranking } = await supabase.from("rankings").select("slug").eq("id", id).single();
+  if (ranking?.slug) revalidatePath(`/rankings/${ranking.slug}`);
+  revalidatePath("/admin/rankings");
+  revalidatePath("/rankings");
+}
+
 export async function deleteRanking(id: string) {
   const supabase = createAdminClient();
   const { data: ranking } = await supabase.from("rankings").select("slug").eq("id", id).single();

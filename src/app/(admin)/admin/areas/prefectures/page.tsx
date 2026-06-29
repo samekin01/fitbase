@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createPrefecture } from "@/lib/actions/prefectures";
+import { createPrefecture, updatePrefectureSeo } from "@/lib/actions/prefectures";
 import { MapPinIcon } from "@/components/ui/Icons";
 
 export const dynamic = "force-dynamic";
@@ -9,7 +9,7 @@ export default async function PrefecturesPage() {
   const supabase = createAdminClient();
   const { data: prefectures } = await supabase
     .from("prefectures")
-    .select("id, name, slug, sort_order")
+    .select("id, name, slug, sort_order, seo_title, meta_description")
     .order("sort_order");
 
   return (
@@ -90,6 +90,51 @@ export default async function PrefecturesPage() {
               都道府県データがありません。
             </div>
           )}
+        </div>
+      </section>
+
+      {/* ─── SEO設定 ─── */}
+      <section style={{ marginTop: "2rem" }}>
+        <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, color: "var(--color-gray-700)", marginBottom: "0.75rem" }}>
+          SEO設定
+        </h2>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+          {prefectures?.map((pref: any) => (
+            <form
+              key={pref.id}
+              action={updatePrefectureSeo}
+              style={{
+                backgroundColor: "var(--color-white)",
+                border: "1px solid var(--color-gray-200)",
+                borderRadius: "var(--radius-md)",
+                padding: "0.875rem 1.125rem",
+              }}
+            >
+              <input type="hidden" name="id" value={pref.id} />
+              <p style={{ fontWeight: 700, fontSize: "0.875rem", marginBottom: "0.625rem" }}>{pref.name}</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                <input
+                  name="seo_title"
+                  type="text"
+                  defaultValue={pref.seo_title ?? ""}
+                  placeholder="SEOタイトル（未設定）"
+                  maxLength={60}
+                  className="form-input"
+                />
+                <textarea
+                  name="meta_description"
+                  defaultValue={pref.meta_description ?? ""}
+                  placeholder="メタディスクリプション（未設定）"
+                  maxLength={120}
+                  className="form-input"
+                  style={{ minHeight: "50px", resize: "vertical" }}
+                />
+                <div>
+                  <button type="submit" className="btn btn-secondary btn-sm">保存</button>
+                </div>
+              </div>
+            </form>
+          ))}
         </div>
       </section>
     </div>

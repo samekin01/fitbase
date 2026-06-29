@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createCity, bulkInsertCities } from "@/lib/actions/cities";
+import { createCity, bulkInsertCities, updateCitySeo } from "@/lib/actions/cities";
 import { PRESET_CITIES } from "@/lib/city-presets";
 import { BuildingOfficeIcon } from "@/components/ui/Icons";
 
@@ -12,7 +12,7 @@ export default async function CitiesPage() {
   const [{ data: cities }, { data: prefectures }] = await Promise.all([
     supabase
       .from("cities")
-      .select("id, name, slug, prefectures(name, slug), sort_order")
+      .select("id, name, slug, prefectures(name, slug), sort_order, seo_title, meta_description")
       .order("sort_order"),
     supabase.from("prefectures").select("id, name, slug").order("sort_order"),
   ]);
@@ -173,6 +173,56 @@ export default async function CitiesPage() {
               市区町村データがありません。
             </div>
           )}
+        </div>
+      </section>
+
+      {/* ─── SEO設定 ─── */}
+      <section style={{ marginTop: "2rem" }}>
+        <h2 style={{ fontSize: "0.9375rem", fontWeight: 700, color: "var(--color-gray-700)", marginBottom: "0.75rem" }}>
+          SEO設定
+        </h2>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+          {cities?.map((city: any) => (
+            <form
+              key={city.id}
+              action={updateCitySeo}
+              style={{
+                backgroundColor: "var(--color-white)",
+                border: "1px solid var(--color-gray-200)",
+                borderRadius: "var(--radius-md)",
+                padding: "0.875rem 1.125rem",
+              }}
+            >
+              <input type="hidden" name="id" value={city.id} />
+              <p style={{ fontWeight: 700, fontSize: "0.875rem", marginBottom: "0.625rem" }}>
+                {city.name}
+                <span style={{ fontWeight: 400, color: "var(--color-gray-400)", marginLeft: "0.5rem" }}>
+                  {city.prefectures?.name ?? ""}
+                </span>
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                <input
+                  name="seo_title"
+                  type="text"
+                  defaultValue={city.seo_title ?? ""}
+                  placeholder="SEOタイトル（未設定）"
+                  maxLength={60}
+                  className="form-input"
+                />
+                <textarea
+                  name="meta_description"
+                  defaultValue={city.meta_description ?? ""}
+                  placeholder="メタディスクリプション（未設定）"
+                  maxLength={120}
+                  className="form-input"
+                  style={{ minHeight: "50px", resize: "vertical" }}
+                />
+                <div>
+                  <button type="submit" className="btn btn-secondary btn-sm">保存</button>
+                </div>
+              </div>
+            </form>
+          ))}
         </div>
       </section>
     </div>

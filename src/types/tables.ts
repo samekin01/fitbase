@@ -180,6 +180,8 @@ export type FeatureGym = {
   gym_id: string;
   sort_order: number;
   comment: string | null;
+  section_label: string | null;
+  headline: string | null;
   created_at: string;
 };
 

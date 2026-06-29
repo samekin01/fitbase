@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fetchAllRows } from "@/lib/supabase/paginate";
+import { SeoAiFillRunner, type SeoAiTarget } from "@/components/admin/SeoAiFillRunner";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "SEO管理 | FitBase CMS" };
@@ -10,6 +11,7 @@ const META_DESCRIPTION_MAX = 120;
 
 type Row = {
   id: string;
+  table: string;
   name: string;
   href: string;
   seo_title: string | null;
@@ -17,24 +19,29 @@ type Row = {
   noindex?: boolean;
 };
 
-type Issue = { label: string; severity: "error" | "warning" };
+type Issue = { label: string; severity: "error" | "warning"; field: "seo_title" | "meta_description" | "noindex" };
 
 function getIssues(row: Row): Issue[] {
   const issues: Issue[] = [];
   if (!row.seo_title) {
-    issues.push({ label: "SEOタイトル未設定", severity: "error" });
+    issues.push({ label: "SEOタイトル未設定", severity: "error", field: "seo_title" });
   } else if (row.seo_title.length > SEO_TITLE_MAX) {
-    issues.push({ label: `SEOタイトルが${SEO_TITLE_MAX}文字超（${row.seo_title.length}文字）`, severity: "warning" });
+    issues.push({ label: `SEOタイトルが${SEO_TITLE_MAX}文字超（${row.seo_title.length}文字）`, severity: "warning", field: "seo_title" });
   }
   if (!row.meta_description) {
-    issues.push({ label: "メタディスクリプション未設定", severity: "error" });
+    issues.push({ label: "メタディスクリプション未設定", severity: "error", field: "meta_description" });
   } else if (row.meta_description.length > META_DESCRIPTION_MAX) {
-    issues.push({ label: `メタディスクリプションが${META_DESCRIPTION_MAX}文字超（${row.meta_description.length}文字）`, severity: "warning" });
+    issues.push({ label: `メタディスクリプションが${META_DESCRIPTION_MAX}文字超（${row.meta_description.length}文字）`, severity: "warning", field: "meta_description" });
   }
   if (row.noindex) {
-    issues.push({ label: "noindex設定中（検索結果に表示されません）", severity: "error" });
+    issues.push({ label: "noindex設定中（検索結果に表示されません）", severity: "error", field: "noindex" });
   }
   return issues;
+}
+
+// AIで自動生成できるのはSEOタイトル・メタディスクリプションのみ（noindexの解除は人の判断が必要なため対象外）
+function canAiFix(issues: Issue[]): boolean {
+  return issues.some((i) => i.field === "seo_title" || i.field === "meta_description");
 }
 
 function Section({ title, rows }: { title: string; rows: Row[] }) {
@@ -118,6 +125,7 @@ export default async function SeoPage() {
 
   const gymRows: Row[] = (gyms ?? []).map((g: any) => ({
     id: g.id,
+    table: "gyms",
     name: g.name,
     href: `/admin/gyms/${g.id}`,
     seo_title: g.seo_title,
@@ -126,6 +134,7 @@ export default async function SeoPage() {
   }));
   const articleRows: Row[] = (articles ?? []).map((a: any) => ({
     id: a.id,
+    table: "articles",
     name: a.title,
     href: `/admin/articles/${a.id}`,
     seo_title: a.seo_title,
@@ -134,6 +143,7 @@ export default async function SeoPage() {
   }));
   const featureRows: Row[] = (features ?? []).map((f: any) => ({
     id: f.id,
+    table: "features",
     name: f.title,
     href: `/admin/features/${f.id}`,
     seo_title: f.seo_title,
@@ -141,6 +151,7 @@ export default async function SeoPage() {
   }));
   const rankingRows: Row[] = (rankings ?? []).map((r: any) => ({
     id: r.id,
+    table: "rankings",
     name: r.title,
     href: `/admin/rankings/${r.id}`,
     seo_title: r.seo_title,
@@ -148,6 +159,7 @@ export default async function SeoPage() {
   }));
   const prefectureRows: Row[] = (prefectures ?? []).map((p: any) => ({
     id: p.id,
+    table: "prefectures",
     name: p.name,
     href: `/admin/areas/prefectures`,
     seo_title: p.seo_title,
@@ -155,15 +167,25 @@ export default async function SeoPage() {
   }));
   const cityRows: Row[] = (cities ?? []).map((c: any) => ({
     id: c.id,
+    table: "cities",
     name: c.name,
     href: `/admin/areas/cities`,
     seo_title: c.seo_title,
     meta_description: c.meta_description,
   }));
 
-  const totalIssues = [gymRows, articleRows, featureRows, rankingRows, prefectureRows, cityRows]
-    .flat()
-    .filter((row) => getIssues(row).length > 0).length;
+  const allRows = [...gymRows, ...articleRows, ...featureRows, ...rankingRows, ...prefectureRows, ...cityRows];
+  const totalIssues = allRows.filter((row) => getIssues(row).length > 0).length;
+  const aiTargets: SeoAiTarget[] = allRows
+    .map((row) => ({ row, issues: getIssues(row) }))
+    .filter(({ issues }) => canAiFix(issues))
+    .map(({ row }) => ({
+      table: row.table,
+      id: row.id,
+      name: row.name,
+      original_seo_title: row.seo_title,
+      original_meta_description: row.meta_description,
+    }));
 
   return (
     <div style={{ maxWidth: "900px" }}>
@@ -180,6 +202,8 @@ export default async function SeoPage() {
           )}
         </p>
       </div>
+
+      <SeoAiFillRunner targets={aiTargets} />
 
       <Section title="ジム" rows={gymRows} />
       <Section title="記事" rows={articleRows} />

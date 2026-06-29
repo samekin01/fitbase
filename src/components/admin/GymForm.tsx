@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useRef } from "react";
 import type { Gym, Prefecture, City, Station, Tag } from "@/types/tables";
 import { Field, CheckField } from "@/components/admin/fields";
 import { SeoFieldGroup } from "@/components/admin/SeoFieldGroup";
@@ -37,8 +37,16 @@ export function GymForm({ gym, prefectures, cities, stations, allTags, assignedT
     null
   );
 
+  const formRef = useRef<HTMLFormElement>(null);
+  const statusRef = useRef<HTMLSelectElement>(null);
+
+  function publishNow() {
+    if (statusRef.current) statusRef.current.value = "published";
+    formRef.current?.requestSubmit();
+  }
+
   return (
-    <form action={formAction}>
+    <form action={formAction} ref={formRef}>
       {/* 既存ステータスを hidden で送る（公開日時の記録に使用） */}
       <input type="hidden" name="_was_published" value={gym?.status === "published" ? "true" : "false"} />
 
@@ -60,7 +68,7 @@ export function GymForm({ gym, prefectures, cities, stations, allTags, assignedT
             <input name="slug" type="text" defaultValue={gym?.slug} className="form-input" placeholder="未入力時は自動生成" />
           </Field>
           <Field label="ステータス">
-            <select name="status" defaultValue={gym?.status ?? "draft"} className="form-input">
+            <select name="status" ref={statusRef} defaultValue={gym?.status ?? "draft"} className="form-input">
               {GYM_STATUSES.map((s) => (
                 <option key={s.value} value={s.value}>{s.label}</option>
               ))}
@@ -238,9 +246,14 @@ export function GymForm({ gym, prefectures, cities, stations, allTags, assignedT
       </div>
 
       <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
-        <button type="submit" className="btn btn-primary" disabled={isPending}>
+        <button type="submit" className="btn btn-secondary" disabled={isPending}>
           {isPending ? "保存中..." : submitLabel}
         </button>
+        {gym?.status !== "published" && (
+          <button type="button" onClick={publishNow} className="btn btn-primary" disabled={isPending}>
+            公開する
+          </button>
+        )}
       </div>
     </form>
   );

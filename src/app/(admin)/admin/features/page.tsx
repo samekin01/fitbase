@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { StatusBadge } from "@/components/ui/StatusBadge";
+import { ContentStatusSelect } from "@/components/admin/ContentStatusSelect";
+import { updateFeatureStatus } from "@/lib/actions/features";
 import { TagIcon } from "@/components/ui/Icons";
 
 export const dynamic = "force-dynamic";
@@ -57,7 +58,7 @@ export default async function FeaturesListPage() {
                   </td>
                   <td style={{ fontSize: "0.8125rem" }}>{f.cities?.name ?? f.prefectures?.name ?? "—"}</td>
                   <td>{f.category ? <span className="tag-pill">{f.category}</span> : "—"}</td>
-                  <td><StatusBadge status={f.status} /></td>
+                  <td><ContentStatusSelect key={f.status} id={f.id} currentStatus={f.status} action={updateFeatureStatus} /></td>
                   <td style={{ fontSize: "0.75rem", color: "var(--color-gray-500)" }}>
                     {new Date(f.updated_at).toLocaleDateString("ja-JP")}
                   </td>

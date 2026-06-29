@@ -17,6 +17,20 @@ export async function createCity(formData: FormData) {
   revalidatePath("/admin/areas/cities");
 }
 
+export async function updateCitySeo(formData: FormData) {
+  const supabase = createAdminClient();
+  const id = formData.get("id") as string;
+  const seo_title = ((formData.get("seo_title") as string) || "").trim() || null;
+  const meta_description = ((formData.get("meta_description") as string) || "").trim() || null;
+
+  if (!id) throw new Error("idが不足しています");
+
+  const { error } = await supabase.from("cities").update({ seo_title, meta_description } as any).eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/areas/cities");
+  revalidatePath("/admin/seo");
+}
+
 export async function bulkInsertCities(formData: FormData) {
   const supabase = createAdminClient();
   const prefSlug = formData.get("pref_slug") as string;
